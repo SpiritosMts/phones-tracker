@@ -18,18 +18,6 @@ class AddEditInvoice extends StatefulWidget {
   State<AddEditInvoice> createState() => _AddEditInvoiceState();
 }
 
-/// ////////// NOTES /////////////::////
- // 3 types of inv adding,waiting,checked
- // in this screen u'll find <List<InvProd> invProdsList> (prods added) and <InvProd addingCardInvProd> (adding card)
- // when send inv to fb "invProdsList" will be converted to "map" and if i open a waiting or checked inv that "map" will convert to "invProdsList"
-// when waiting inv (draft,not verified yet) added it doesnt affect the treasury or products stock but if its checked=verified it does
-//same  thing for deleting inv
-// in adding card (the card put we use to add prods through it which has u choose the prod name from dropdown and the price textField if the type
-// of inv "isBuy" then its buy inv of type "multiple" else its sell inv of type "multiple, client or delivery" and it has a slider to set qty
-// or you can manually change it through the qty textField after setting prod info to add to  inv click on the arrow to switch it from [AddingCard]->[AddedCard])
-//when you check a "sell inv" all prods in it will decrease its qty value and increase treasury (society money) & when checking 'buy inv' all prods will increase qty and decrease treasury &&&& "" chenge each product <currBuyPrice> ""
-// all buy invoices have to be checked before adding new buy invoice
-/// ////////////////////////////////////
 
 
 
@@ -143,45 +131,9 @@ class _AddEditInvoiceState extends State<AddEditInvoice> {
                           height: 40,
                         ),
 
-                        /// ///////////////////////////////// FIELDS /////////////////////////////
-
-                        //name
-                        if(invCtr.selectedInvoice.clientName !='' && !isAdd || isAdd )  Padding(
-                          padding:  EdgeInsets.only(bottom: spaceFields),
-                          child: customTextField(
-                            controller: invCtr.clientNameTec,
-                            labelText: !isBuy? 'client name':'seller name',
-                            hintText: 'Enter name'.tr,
-                            icon: Icons.person,
-                            enabled: isAdd,
-
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "name can't be empty".tr;
-                              } else {
-                                return null;
-                              }
-                            },
-                          ),
-                        ),
-                        //phone
-                        if(invCtr.selectedInvoice.clientPhone !='' && !isAdd || isAdd ) Padding(
-                          padding:  EdgeInsets.only(bottom: spaceFields),
-                          child: customTextField(
-                            textInputType: TextInputType.phone,
-                            controller: invCtr.clientPhoneTec,
-                            labelText: 'client phone'.tr,
-                            hintText: 'Enter phone'.tr,
-                            icon: Icons.phone,
-                            enabled: isAdd,
-                          ),
-                        ),
-                        
-
                     
                         /// //////////////////////////////////////  Products  ////////////////////////////////////////////////////////////
 
-                        SizedBox(height: 8.0),
 
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -236,67 +188,9 @@ class _AddEditInvoiceState extends State<AddEditInvoice> {
 
                         /// /////////////////////////////////////////////////
                         SizedBox(height: 20),
-                        // ListView.builder(
-                        //     //physics: const NeverScrollableScrollPhysics(),
-                        //
-                        //     itemExtent: 130,
-                        //     padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                        //     shrinkWrap: true,
-                        //     reverse: true,
-                        //     //itemCount: invCtr.InvProdsAdded.length,
-                        //     itemCount:3,
-                        //     itemBuilder: (BuildContext context, int index) {
-                        //       //InvProd invProd = invCtr.InvProdsAdded[index];/// change
-                        //       return invToAddCard();/// change
-                        //     }
-                        // ),
-
-                        ///Button add / update
-                       if(!isVerified) Container(
-                          //color: Colors.red,
-                          width: 90.w,
-                          padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
-
-                          child: ElevatedButton(
-                            style: filledBtnStyle(),
-                            onPressed: () {
-                              if(isAdd) {//new inv
-                                if(!isBuy){
-
-                                }else{
-
-                                }
-                                // both buy and sell
-                                invCtr.addSellInvoice();
-                              } else {//waiting inv
-                                if(invCtr.selectedInvoice.id!=''){
-                                  if(!invCtr.selectedInvoice.isBuy!){
-                                    print('checking sell invoice ....');
-
-                                    invCtr.checkSellInvoice();
-                                  }else{
-                                    print('checking buy invoice ....');
-
-                                    invCtr.checkBuyInvoice();
-                                  }
-                                }else{
-                                  print('no invoice selected');
-                                  showSnack('no invoice selected'.tr);
-                                }
-                          }
-                        },
-                            child: Text(
-                              isAdd? "Send Invoice".tr:"Check Invoice".tr,
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ),
 
                         /// totals(sell,buy,income) and inv ID
-                        GetBuilder<InvoicesCtr>(
+                       if(false) GetBuilder<InvoicesCtr>(
                           id: 'invTotal',
                           builder: (ctr) {
                            Color incomeCol = invCtr.outIncomeTotal > 0.0 ? winIncomeCol : looseIncomeCol;
@@ -585,29 +479,55 @@ class _AddEditInvoiceState extends State<AddEditInvoice> {
           ),
         ),
       /// BUTTONS
-      floatingActionButton: !isAdd ? Padding(
-        padding: const EdgeInsets.all(10),
+      floatingActionButton:Padding(
+        padding: const EdgeInsets.all(20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-
-            ///Change Total
-
-            if(!isVerified) FloatingActionButton(
+            ///addinv
+            FloatingActionButton(
               onPressed: () {
-                //change outsell
-                showAnimDialog(
-                  invCtr.changeTotalSellDialog(price:invCtr.selectedInvoice.isBuy! ? invCtr.outBuyTotal:  invCtr.outSellTotal),
-                  milliseconds: 200,
-                );
+                if(isAdd) {//new inv
+
+                  // both buy and sell
+                  invCtr.addSellInvoice();
+                } else {//waiting inv
+                  if(invCtr.selectedInvoice.id!=''){
+                    if(!invCtr.selectedInvoice.isBuy!){
+                      print('checking sell invoice ....');
+
+                      invCtr.checkSellInvoice();
+                    }else{
+                      print('checking buy invoice ....');
+
+                      //invCtr.checkBuyInvoice();
+                    }
+                  }else{
+                    print('no invoice selected');
+                    showSnack('no invoice selected'.tr);
+                  }
+                }
               },
-              backgroundColor: Colors.blue.withOpacity(0.3),
-              heroTag: 'changeTot',
-              child: const Icon(Icons.currency_exchange),
+              backgroundColor: primaryColor.withOpacity(0.7),
+              heroTag: 'addarr',
+              child: const Icon(Icons.check),
+
             ),
+            ///addprod
+            if(!isVerified && isAdd) FloatingActionButton(
+              onPressed: () {
+                invCtr.addInvProdToList();
+
+              },
+              backgroundColor: primaryColor.withOpacity(0.7),
+              heroTag: 'addarr',
+              child: const Icon(Icons.add_shopping_cart_outlined),
+            ),
+
+
           ],
         ),
-      ):null,
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     
     );

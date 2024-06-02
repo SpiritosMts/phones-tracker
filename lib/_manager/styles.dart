@@ -105,7 +105,7 @@ const Color dialogFieldBorderCol   = Colors.grey;
 const Color iconCol = blueCol;
 
 //invoice
-const Color winIncomeCol   = Colors.greenAccent;
+const Color winIncomeCol   = Color(0xFF00A300);
 const Color errorColor   = Colors.redAccent;
 const Color looseIncomeCol  = Colors.red;
 const Color totalCol  = Colors.lightBlueAccent;

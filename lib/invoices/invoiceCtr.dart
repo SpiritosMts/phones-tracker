@@ -29,6 +29,7 @@ class InvoicesCtr extends GetxController {
 
   //List<Invoice> orderedInvs =[];//once when loaded
   bool isBuy = false;
+  bool atInit = false;
   String invoicesListKey = 'invoicesList';
 
   InvProd addingCardInvProd = InvProd(); //current adding invProd (AddingCard)
@@ -100,160 +101,26 @@ class InvoicesCtr extends GetxController {
       DateTime timeB = dateFormatHM.parse(b.timeReturn!);
       return timeB.compareTo(timeA);
     });
+    update();
 
     notCheckedSellInvoices = invoicesList
         .where((invoice) => (invoice.verified == false && invoice.isBuy == false))
         .toList(); //not chcked sell invs load
     notCheckedBuyInvoices =
         invoicesList.where((invoice) => (invoice.verified == false && invoice.isBuy == true)).toList(); //not chcked buy invs load
+    update();
 
     print(
         '## Refresh ## Invoices (${invoicesList.length}) [${online ? 'DB' : 'PREFS'}], notCheckedSellInvoices=[${notCheckedSellInvoices.length}],  notCheckedBuyInvoices=[${notCheckedBuyInvoices.length}], ');
 
     if (withPrdsRefresh) prdCtr.refreshProducts(online: online); // (DB) when refresh invoices
 
-    if (false) {
-      print('## INVOICES ALL = [${invoicesList.length}]');
-      print('## INVOICES<SELL> NOT VERIFIED = [${notCheckedSellInvoices.length}]');
-      print('## INVOICES<BUY> NOT VERIFIED = [${notCheckedBuyInvoices.length}]');
-    }
 
-    refreshStats();
+
   }
 
   Map<String, Map<String, dynamic>> allItems = {}; //
-  refreshStats() {
-    /// INIT Stats /////////////////////////////////////
-    allItems = {};
 
-    // maybe name / type
-    Map<String, dynamic> monthItems = {};
-    String monthKey = '';
-    //double monthTotalBuy = 0.0;
-    double monthTotalSell = 0.0;
-    double monthIncome = 0.0;
-    //int monthQtySelled = 0;
-    //int monthQtyPurchased = 0;
-    List<String> monthTotalList = [];
-    List<String> monthIncomeList = [];
-    //List<String> monthQtyList = [];
-    List<String> monthTimeList = [];
-// //////////////////////////////////////////////////////
-
-    addToMonthsMap(int index, Invoice inv) {
-      monthItems[index.toString()] = inv;
-
-      double singleTotal = (inv.returnTotal ?? 0).toDouble();
-      double singleIncome = (inv.income ?? 0).toDouble();
-
-      monthTotalSell += singleTotal; //double
-      monthIncome += singleIncome; //double
-      monthTotalList.add(singleTotal.toString()); //list
-      monthIncomeList.add(singleIncome.toString()); //list
-      monthTimeList.add(inv.timeReturn!); //list
-    }
-
-// //////////////////////////////////////////////////////
-
-    passToNewMonth() {
-      //double
-      monthItems['totalIncome'] = monthIncome;
-      monthItems['totalSell'] = monthTotalSell;
-      //lists
-      monthItems['sellList'] = monthTotalList;
-      monthItems['incomeList'] = monthIncomeList;
-      monthItems['timeList'] = monthTimeList;
-      //print('## [$monthKey] => ${monthItems.length-5} INVOICES');
-      allItems[monthKey] = monthItems; //add month
-
-      // //// CLEAR //////////////////////
-      monthKey = '';
-      monthTotalSell = 0.0;
-      monthIncome = 0.0;
-
-      monthIncomeList = [];
-      monthTotalList = [];
-      monthTimeList = [];
-
-      monthItems = {};
-    }
-
-    /// //////////////////////////////////////////////////////
-    for (int i = 0; i < invoicesList.length; i++) {
-      Invoice currInv = invoicesList[i];
-
-      String entryMonth = getMonthString(currInv.timeReturn!);
-      String entryYear = getYearString(currInv.timeReturn!);
-
-      if (i == 0) {
-        // first card /last time
-        monthKey = '$entryMonth $entryYear';
-        addToMonthsMap(i, currInv); //
-      } else {
-        Invoice prevInv = invoicesList[i - 1];
-
-        String currMonth = getMonthString(currInv.timeReturn!);
-        String prevMonth = getMonthString(prevInv.timeReturn!);
-        if (currMonth == prevMonth) {
-          //same month
-          ///print('## INDEX [ $index ] SAME month [ $currMonth - $prevMonth ]');
-          addToMonthsMap(i, currInv); //
-        } else {
-          //new month //pass to new month
-          ///print('## INDEX [ $index ] DIFF month ********** [ $currMonth - $prevMonth ]');
-
-          passToNewMonth();
-
-          // //////////////////////
-
-          monthKey = '$entryMonth $entryYear';
-          addToMonthsMap(i, currInv); //
-        }
-        if (i == invoicesList.length - 1) {
-          ///print('## LAST-CARD ');
-          passToNewMonth();
-        }
-      }
-    }
-
-    update();
-    //debugPrint('## ALL INVOICES => (${invoicesList.length}) ##  ${printFormattedJson(allItems)}');
-  }
-
-  //get data for graphs
-  List<double> extractIncomes(List<Invoice> invoices) {
-    List<double> incomes = [];
-    for (var invoice in invoices) {
-      if (invoice.income != null) {
-        incomes.add(invoice.income!);
-      }
-    }
-    return incomes;
-  }
-
-  List<double> extractTotals(List<Invoice> invoices) {
-    List<double> totals = [];
-    for (var invoice in invoices) {
-      if (invoice.returnTotal != null) {
-        totals.add(invoice.returnTotal!);
-      }
-    }
-    return totals;
-  }
-
-  List<String> extractDates(List<Invoice> invoices) {
-    List<String> dates = [];
-    for (var invoice in invoices) {
-      if (invoice.timeReturn != null) {
-        dates.add(getDayString(invoice.timeReturn!));
-      }
-    }
-    return dates;
-  }
-
-  /// ///////////////////////////////////////////////////////////////////////////////
-
-  /// /////////////////////////////////  ADD   ////////////////////////////////////////////:
 
   //add invoice to fb //DB
   addSellInvoice() {
@@ -288,8 +155,8 @@ class InvoicesCtr extends GetxController {
               // prods map
               outTotal: isBuy ? -1 * outBuyTotal : outSellTotal,
               // add to user cz its sell
-              timeOut: todayToString(),
-              timeReturn: todayToString(),
+              timeOut: todayToString(showSeconds: true),
+              timeReturn: todayToString(showSeconds: true),
               verified: false,
               totalChanged: false,
               isBuy: isBuy,
@@ -345,6 +212,7 @@ class InvoicesCtr extends GetxController {
     sliderVal = 20.0;
     isBuy = false;
 
+    atInit=true;
     //productsOfAddingCard = prdCtr.productsList;/// init all products
 
     initAddingCard(); //when zeroi fields
@@ -355,17 +223,19 @@ class InvoicesCtr extends GetxController {
   initAddingCard() {
     addingCardInvProd = InvProd();
 
-    addingCardProd = (productsOfAddingCard.isNotEmpty ? productsOfAddingCard[0] : Product());
+
 
     if (isBuy) {
+      if(atInit)  invCtr.productsOfAddingCard = prdCtr.productsList.toList(); //show all prods
+      addingCardProd = (productsOfAddingCard.isNotEmpty ? productsOfAddingCard[0] : Product());
       invCtr.maxQty = 20000;
-      invCtr.productsOfAddingCard = prdCtr.productsList.toList(); //show all prods
     } else {
+      if(atInit)  invCtr.productsOfAddingCard = prdCtr.productsList.where((product) => product.currQty[cWs]! > 0).toList(); //show only prods that have qty
+      addingCardProd = (productsOfAddingCard.isNotEmpty ? productsOfAddingCard[0] : Product());
       invCtr.maxQty = addingCardProd.currQtyReduced[cWs]!.toDouble();
-      invCtr.productsOfAddingCard =
-          prdCtr.productsList.where((product) => product.currQty[cWs]! > 0).toList(); //show only prods that have qty
     }
 
+    atInit = false;
     invCtr.sliderVal = 0.0;
 
     //addingQtyTec.text = addingCardProd.currQty.toString();//selected Prod => textField (qty)
@@ -402,14 +272,14 @@ class InvoicesCtr extends GetxController {
       }
     }
 
-    if (invToAddKey.currentState != null && invToAddKey.currentState!.validate()) {
+    ///
       invProd.qty = int.tryParse(invCtr.addingQtyTec.text) ?? 0;
       if (!isBuy) {
         invProd.priceSell = double.tryParse(invCtr.addingPriceTec.text) ?? 0.0;
       } else {
         invProd.priceBuy = double.tryParse(invCtr.addingPriceTec.text) ?? 0.0;
       }
-    }
+    ///if (invToAddKey.currentState != null && invToAddKey.currentState!.validate()) {}
 
     invProd.name = invCtr.addingCardProd.name; //from dropDown
     //invProd.priceBuy = invCtr.addingCardProd.currBuyPrice;//from dropDown
@@ -440,7 +310,12 @@ class InvoicesCtr extends GetxController {
 
       //remove this prod from next prods list, to not show same prod again in dropdown list
       String productNameToRemove = addingCardInvProd.name!;
-      productsOfAddingCard.removeWhere((product) => product.name == productNameToRemove);
+      if(true){
+        print('## before ${productsOfAddingCard.length}');
+        productsOfAddingCard.removeWhere((product) => product.name == productNameToRemove);
+        print('## after ${productsOfAddingCard.length}');
+
+      }
 
       /// reset adding card REMOVING the added ones
       if (productsOfAddingCard.isNotEmpty) initAddingCard(); //after adding new addingCard
@@ -497,7 +372,7 @@ class InvoicesCtr extends GetxController {
 
               if (foundProduct.currQty[cWs]! - invProd.qty! < 0) {
                 showSnack('product <${foundProduct.name}> qty error'.tr, color: Colors.black54);
-                print('## Failed to check invoice: <${foundProduct.name}> qty error');
+                print('## Failed to check sell invoice: <${foundProduct.name}> qty error');
                 //so either u change sell qty in inv or add new qty to product
                 throw Exception('## Exception ');
               }
@@ -550,22 +425,23 @@ class InvoicesCtr extends GetxController {
               throw Exception('## Exception ');
             }
 
-            /// update society cash
+
+            // ----- success
+
+            ///SAVE
+            Future.delayed(const Duration(milliseconds: 2000), () {
+              invCtr.refreshInvoices(withPrdsRefresh: true);
+              update();
+              Get.back();
+              Get.back(); // --hide loading
+              showTos('Invoice has been checked'.tr, color: Colors.green.withOpacity(0.7));
+              print("## invoice<${selectedInvoice.index}/${invoicesList.length}> checked + products qty affected ##");
+
+            });
           }
 
           await check();
 
-          // ----- success
-          Get.back();
-          Get.back(); // --hide loading
-          showTos('Invoice has been checked'.tr, color: Colors.green.withOpacity(0.7));
-          print("## invoice<${selectedInvoice.index}/${invoicesList.length}> checked + products qty affected ##");
-
-          ///SAVE
-          Future.delayed(const Duration(milliseconds: 2000), () {
-            invCtr.refreshInvoices(withPrdsRefresh: true);
-            update();
-          });
         } catch (error) {
           print("## Failed to check sell invoice: $error");
         }
@@ -573,102 +449,6 @@ class InvoicesCtr extends GetxController {
     });
   }
 
-  Future<void> checkBuyInvoice() async {
-    showNoHeader(
-      txt: 'Are you sure you want to check this invoice ?'.tr,
-      icon: Icons.check,
-      btnOkColor: Colors.green,
-      btnOkText: 'Check'.tr,
-    ).then((toAllow) async {
-      // if admin accept
-      if (toAllow) {
-        /// ///////////  check buy /////////////////////
-
-        try {
-          showLoading(text: 'Loading'.tr); //--------
-
-          await Future.wait<void>([]);
-
-          check() async {
-            //check prods qty should not be less than 0
-            for (InvProd invProd in invProdsList) {
-              Product? foundProduct =
-                  prdCtr.productsList.firstWhere((product) => product.name == invProd.name, orElse: () => Product());
-
-              if (foundProduct.currQty[cWs]! - invProd.qty! < 0) {
-                showSnack('product <${foundProduct.name}> qty error'.tr, color: Colors.black54);
-                print('## Failed to check invoice: <${foundProduct.name}> qty error');
-                //so either u change sell qty in inv or add new qty to product
-                throw Exception('## Exception ');
-              }
-            }
-            convertInvProdsListToMap();
-            //offline
-            Invoice updatedInv = getInvoiceById(invCtr.selectedInvoice.id!);
-            updatedInv.productsReturned = invProdsMap;
-            updatedInv.returnTotal = -1 * outSellTotal;
-            updatedInv.income = 0;
-            updatedInv.verified = true;
-            updatedInv.totalChanged = outBuyTotal != selectedInvoice.outTotal;
-
-            Map<String, dynamic> invoiceToCheck = {
-              'productsReturned': invProdsMap, //the new map after updating its products
-              'returnTotal': -1 * outBuyTotal,
-              'income': 0,
-              'verified': true,
-              'totalChanged': outBuyTotal != selectedInvoice.outTotal,
-            };
-
-            //online
-            if (invOnlineEdit) {
-              var value = await updateDoc(
-                fieldsMap: invoiceToCheck,
-                coll: invoicesColl,
-                docID: invCtr.selectedInvoice.id!,
-              );
-            }
-
-            /// update each product with sellProc with FOR
-            if (checkInvProductsExist(invProdsList)) {
-              //check if all prods exist now
-              for (InvProd invProd in invProdsList) {
-                //make sell procedure for all of those prods
-                Product? foundProduct = prdCtr.productsList.firstWhere((product) => product.name == invProd.name, orElse: () => Product());
-                await prdCtr.addBuyProc(
-                    prod: foundProduct,
-                    inputPrice: invProd.priceBuy!,
-                    chosenQty: invProd.qty!,
-                    invID: invCtr.selectedInvoice.id!,
-                    clientName: invCtr.selectedInvoice.clientName!);
-                //print('## inv<${selectedInvoice.id}> : product<${foundProduct.name}>qty<${invProd.qty!}>  selled');
-              }
-            } else {
-              print('## Failed to sell  qty: not all products in invoice exist NOW');
-              throw Exception('## Exception ');
-            }
-
-            /// update society cash
-          }
-
-          await check();
-
-          // ----- success
-          Get.back();
-          Get.back(); // --hide loading
-          showTos('Invoice has been checked'.tr, color: Colors.green.withOpacity(0.7));
-
-          ///SAVE
-          Future.delayed(const Duration(milliseconds: 2000), () {
-            print("## invoice<${selectedInvoice.index}/${invoicesList.length}> checked + products qty affected ##");
-            invCtr.refreshInvoices(withPrdsRefresh: true);
-            update();
-          });
-        } catch (error) {
-          print("## Failed to check buy invoice: $error");
-        }
-      }
-    });
-  }
 
   //change added single prod price/qty (waiting inv)
   changeAddedProdReturn(int index) {
@@ -694,7 +474,7 @@ class InvoicesCtr extends GetxController {
         refreshInvProdsTotals(withBuyTotal: false);
       } else {
         outSellTotal = double.tryParse(totalSellPriceTec.text) ?? 0.0;
-        outSellCol = Colors.yellowAccent;
+        outSellCol = Colors.purple;
         print('## outSellTotal => ${outSellTotal} ');
         refreshInvProdsTotals(withSellTotal: false);
       }

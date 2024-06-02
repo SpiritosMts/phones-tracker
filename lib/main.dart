@@ -12,7 +12,6 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-import '_manager/myTheme/myThemeCtr.dart';
 import '_manager/myVoids.dart';
 import '_manager/styles.dart';
 import '_manager/bindings.dart';
@@ -33,10 +32,6 @@ StreamSubscription? userStream;
 int introTimes = 0;
 bool showIntro = false;
 
-introTimesGet() async {
-  introTimes = sharedPrefs!.getInt('intro') ?? 0;
-  print('## introTimes_get_<$introTimes>');
-}
 
 Future<void> checkFirebase() async {
   if (await Firebase.initializeApp() != null) {
@@ -77,7 +72,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   MyLocaleCtr langCtr = Get.put(MyLocaleCtr()); //lang
-  MyThemeCtr themeCtr = Get.put(MyThemeCtr()); //theme
   bool introShown = false;
 
   @override

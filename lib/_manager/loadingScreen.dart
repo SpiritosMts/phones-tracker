@@ -102,16 +102,16 @@ class _VerifySigningInState extends State<LoadingScreen> {
                   height: 60,
                 ),
 
-                /// Logo Image
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 00.0),
-                  child: Image.asset(
-                    'assets/images/logo.png',
-                    fit: BoxFit.cover,
-                    width: 200,
-                    height: 200,
+                  /// Logo Image
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 00.0),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.cover,
+                      width: 200,
+                      height: 200,
+                    ),
                   ),
-                ),
                 SizedBox(
                   height: 10,
                 ),

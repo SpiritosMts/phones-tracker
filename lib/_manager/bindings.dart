@@ -8,7 +8,6 @@ import '../products/productsCtr.dart';
 import 'auth/authCtr.dart';
 import 'generalLayout/generalLayoutCtr.dart';
 import 'myLocale/myLocaleCtr.dart';
-import 'myTheme/myThemeCtr.dart';
 
 
 AuthController authCtr = AuthController.instance;
@@ -19,7 +18,6 @@ InvoicesCtr get invCtr => Get.find<InvoicesCtr>();
 ProductsCtr get prdCtr => Get.find<ProductsCtr>();
 MyLocaleCtr get lngCtr => Get.find<MyLocaleCtr>();
 NotesCtr get noteCtr => Get.find<NotesCtr>();
-MyThemeCtr get themeCtr => Get.find<MyThemeCtr>();
 
 
 

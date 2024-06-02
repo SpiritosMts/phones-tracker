@@ -43,6 +43,7 @@ CollectionReference prDataColl = FirebaseFirestore.instance.collection('prData')
 CollectionReference invoicesColl = FirebaseFirestore.instance.collection('invoices');
 CollectionReference notesColl = FirebaseFirestore.instance.collection('notes');
 CollectionReference  productsColl = FirebaseFirestore.instance.collection('products');
+CollectionReference  affectedColl = FirebaseFirestore.instance.collection('affected');
 
 DateFormat dateFormatHM = DateFormat('dd-MM-yyyy HH:mm');
 DateFormat dateFormatHMS = DateFormat('dd-MM-yyyy HH:mm:ss');
@@ -109,29 +110,10 @@ getProductById(String id) {
   }
   return foundProduct;
 }
-bool doesInvoiceExist(String targetId) {
-  return invCtr.invoicesList.any((invoice) => invoice.id == targetId);
-}
 
 
 
 
-
-//maps-lists
-Map<String, Map<String, dynamic>> orderMapByTime(Map<String, dynamic> mp){
-  List<MapEntry<String, dynamic>> list = mp.entries.toList();
-  list.sort((a, b) {
-    DateTime timeA = dateFormatHM.parse(a.value['time']);
-    DateTime timeB = dateFormatHM.parse(b.value['time']);
-    return timeB.compareTo(timeA);
-  });
-  Map<String, Map<String, dynamic>> sortedMap = {};
-  list.asMap().forEach((index, entry) {
-    sortedMap[entry.key] = entry.value;
-  });
-
-  return sortedMap;
-}
 
 String getLastIndex(Map<String, dynamic> fieldMap, {String? cr,  bool afterLast = false}) {
   int newItemIndex = 0;
@@ -146,15 +128,6 @@ String getLastIndex(Map<String, dynamic> fieldMap, {String? cr,  bool afterLast 
   return newItemIndex.toString();
 }
 
-Map<String, dynamic> addCaracterAtStartOfKeys(String caracter, Map<String, dynamic> originalMap){
-  Map<String, dynamic> modifiedMap = {};
-
-  originalMap.forEach((key, value) {
-    String modifiedKey = caracter + key;
-    modifiedMap[modifiedKey] = value;
-  });
-  return modifiedMap;
-}
 Map<String, dynamic> removeSubstringFromKeys(String substring, Map<String, dynamic> originalMap) {
   Map<String, dynamic> modifiedMap = {};
 
@@ -165,30 +138,7 @@ Map<String, dynamic> removeSubstringFromKeys(String substring, Map<String, dynam
 
   return modifiedMap;
 }
-List<double> sortDescending(List<double> inputList) {
-  List<double> sortedList = List.from(inputList); // Make a copy to avoid modifying the original list
-  sortedList.sort((a, b) => b.compareTo(a)); // Sorting in descending order
-  return sortedList;
-}
-List<int> sortDescendingInt(List<int> inputList) {
-  List<int> sortedList = List.from(inputList); // Make a copy to avoid modifying the original list
-  sortedList.sort((a, b) => b.compareTo(a)); // Sorting in descending order
-  return sortedList;
-}
-List<double> convertStringListToDoubleList(List<String> stringList) {
-  List<double> doubleList = [];
-  for (String stringValue in stringList) {
-    double doubleValue = double.tryParse(stringValue) ?? 0.0;
-    doubleList.add(doubleValue);
-  }
-  return doubleList;
-}
-double getDoubleMinValue(List<double> values) {
-  return values.reduce((currentMin, value) => value < currentMin ? value : currentMin);
-}
-double getDoubleMaxValue(List<double> values) {
-  return values.reduce((currentMax, value) => value > currentMax ? value : currentMax);
-}
+
 
 
 
@@ -244,29 +194,15 @@ printJson(json) {
 
 
 
-//textFields
-fieldFocusChange(BuildContext context, FocusNode currentFocus, FocusNode nextFocus) {
-  currentFocus.unfocus();
-  FocusScope.of(context).requestFocus(nextFocus);
-}
-fieldUnfocusAll() {
-  FocusManager.instance.primaryFocus?.unfocus();
-}
 
 
 
 
-//date-time
-String extractDate(String dateTimeString) {
-  List<String> parts = dateTimeString.split(' '); // Split the string by space
-  String datePart = parts[0]; // Get the first part, which is the date
-  return datePart;
-}
 bool isDateToday(String dateString) {
   // Create a DateFormat instance to parse the date string
 
   // Parse the date string to a DateTime object
-  DateTime date = dateFormatHM.parse(dateString);
+  DateTime date = dateFormatHMS.parse(dateString);
 
   // Get the current date
   DateTime currentDate = DateTime.now();
@@ -424,35 +360,6 @@ showLoading({required String text}) {
     desc: 'Please wait'.tr,
   ).show();
 }
-showSuccess({String? sucText, Function()? btnOkPress}) {
-  return AwesomeDialog(
-    dialogBackgroundColor: dialogBgCol,
-    width: awesomeDialogWidth,
-
-    autoDismiss: true,
-    context: navigatorKey.currentContext!,
-    dismissOnBackKeyPress: false,
-    headerAnimationLoop: false,
-    dismissOnTouchOutside: false,
-    animType: AnimType.leftSlide,
-    dialogType: DialogType.success,
-    //showCloseIcon: true,
-    //title: 'Success'.tr,
-
-    titleTextStyle: TextStyle(color: dialogTitleCol),
-    descTextStyle: TextStyle(fontSize: 15.sp),
-    desc: sucText,
-    btnOkText: 'Ok'.tr,
-
-    btnOkOnPress: () {
-      btnOkPress!();
-    },
-    // onDissmissCallback: (type) {
-    //   debugPrint('## Dialog Dissmiss from callback $type');
-    // },
-    //btnOkIcon: Icons.check_circle,
-  ).show();
-}
 
 Future<bool> showNoHeader({String? txt, String? btnOkText, Color btnOkColor = errorColor, IconData? icon}) async {
   bool shouldDelete = false;
@@ -498,7 +405,7 @@ Future<bool> showNoHeader({String? txt, String? btnOkText, Color btnOkColor = er
       ),
     ),
     titleTextStyle: TextStyle(fontSize: 18.sp, color: dialogTitleCol),
-    descTextStyle: TextStyle(fontSize: 16.sp),
+    descTextStyle: TextStyle(fontSize: 16.sp,color: normalTextCol),
     buttonsTextStyle: TextStyle(fontSize: 15.sp),
 
     padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
@@ -520,17 +427,6 @@ Future<bool> showNoHeader({String? txt, String? btnOkText, Color btnOkColor = er
 }
 
 //snackbars
-showGetSnackbar(String title,String desc,{Color? color}){
-  Get.snackbar(
-
-    title,
-    desc,
-    duration: Duration(seconds: 2),
-    snackPosition: SnackPosition.BOTTOM,
-    backgroundColor:color?? Colors.redAccent.withOpacity(0.8),
-    colorText: Colors.white,
-  );
-}
 showTos(txt, {Color color = Colors.black87, bool withPrint = false}) async {
   Fluttertoast.showToast(
       msg: txt,

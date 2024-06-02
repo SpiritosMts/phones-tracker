@@ -2,21 +2,21 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
-import 'package:phones_tracker/_manager/widgets/rounded_icon_button.dart';
-import 'package:phones_tracker/_models/buySellProd.dart';
-import 'package:phones_tracker/_models/prodChange.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:phones_tracker/products/productAdd.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import '../_models/affectedDev.dart';
 import '../_models/invProd.dart';
 import '../_models/invoice.dart';
 import '../_models/note.dart';
 import '../_models/product.dart';
+import '../affected/affDtails.dart';
 import '../invoices/addEditInvoice.dart';
 import '../notes/noteInfo.dart';
+import '../products/productsCtr.dart';
 import 'bindings.dart';
 import 'myLocale/myLocaleCtr.dart';
 import 'myVoids.dart';
@@ -64,65 +64,11 @@ noteCard(Note note,i,{    Function()? btnOnPress,}){
                           children: [
                             Padding(
                               padding:  EdgeInsets.only(bottom: bottomProdName,top: 5),
-                              child: Text('${note.type}',style: TextStyle(
+                              child: Text('${note.workerName}',style: TextStyle(
                                   color: normalTextCol,
                                   fontWeight: FontWeight.w400,
                                   fontSize: 17
                               )),
-                            ),
-
-                            ///workspace
-                            Padding(
-                              padding:  EdgeInsets.only(bottom: bottomProdBuy),
-                              child: RichText(
-                                textAlign: TextAlign.start,
-                                text: TextSpan(children: [
-                                  TextSpan(
-                                      text: 'Work Space: ',
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle: TextStyle(
-                                            color: blueCol,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w400),
-                                      )),
-                                    TextSpan(
-                                        text: note.workSpace,
-                                        style: GoogleFonts.almarai(
-                                          height: 1,
-                                          textStyle: TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
-                                        )),
-
-
-                                ]),
-                              ),
-                            ),
-
-                            ///worker name
-                            Padding(
-                              padding:  EdgeInsets.only(bottom: bottomProdBuy),
-                              child: RichText(
-                                textAlign: TextAlign.start,
-                                text: TextSpan(children: [
-                                  TextSpan(
-                                      text: 'added by: ',
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle: TextStyle(
-                                            color: blueCol,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w400),
-                                      )),
-                                    TextSpan(
-                                        text: note.workerName,
-                                        style: GoogleFonts.almarai(
-                                          height: 1,
-                                          textStyle: TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
-                                        )),
-
-
-                                ]),
-                              ),
                             ),
 
                             ///client name
@@ -132,7 +78,7 @@ noteCard(Note note,i,{    Function()? btnOnPress,}){
                                 textAlign: TextAlign.start,
                                 text: TextSpan(children: [
                                   TextSpan(
-                                      text: 'client: ',
+                                      text: 'Topic: ',
                                       style: GoogleFonts.almarai(
                                         height: 1,
                                         textStyle: TextStyle(
@@ -153,29 +99,34 @@ noteCard(Note note,i,{    Function()? btnOnPress,}){
                             ),
 
                             ///about
-                          if(false)  Padding(
+                           Padding(
                               padding:  EdgeInsets.only(bottom: bottomProdBuy),
-                              child: RichText(
+                              child: SizedBox(
+                                width: 55.w,
+                                child: RichText(
+                                  overflow: TextOverflow.ellipsis,
+
                                 textAlign: TextAlign.start,
-                                text: TextSpan(children: [
-                                  TextSpan(
-                                      text: 'about: ',
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle: TextStyle(
-                                            color: blueCol,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w400),
-                                      )),
+                                  text: TextSpan(children: [
                                     TextSpan(
-                                        text: note.clientName,
+                                        text: 'about: ',
                                         style: GoogleFonts.almarai(
                                           height: 1,
-                                          textStyle: TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
+                                          textStyle: TextStyle(
+                                              color: blueCol,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w400),
                                         )),
+                                      TextSpan(
+                                          text: note.description,
+                                          style: GoogleFonts.almarai(
+                                            height: 1,
+                                            textStyle: TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
+                                          )),
 
 
-                                ]),
+                                  ]),
+                                ),
                               ),
                             ),
 
@@ -213,6 +164,172 @@ noteCard(Note note,i,{    Function()? btnOnPress,}){
 }
 
 
+
+affectedCard(AffectedDev affectedDev, i, {Function()? btnOnPress}) {
+  double bottomPadding = 6;
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 3.0),
+    child: GestureDetector(
+      onTap: () {
+        prdCtr.seletAff(affectedDev);
+        Get.to(() => AffDetails(isAdd: false));
+      },
+      child: Container(
+        child: Card(
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: productBorderCol, width: 1.5),
+            borderRadius: BorderRadius.circular(13),
+          ),
+          color: productCardColor,
+          child: Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        // Placeholder for an image or icon
+                        Container(
+
+                          child: Icon(Icons.phone_android,size: 60,),
+                        ),
+                        const SizedBox(width: 16),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(bottom: bottomPadding, top: 5),
+                              child: Text(
+                                '${affectedDev.name}',
+                                style: TextStyle(
+                                  color: normalTextCol,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 17,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(bottom: bottomPadding),
+                              child: RichText(
+                                textAlign: TextAlign.start,
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                    text: 'Model: ',
+                                    style: GoogleFonts.almarai(
+                                      height: 1,
+                                      textStyle: TextStyle(
+                                        color: blueCol,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: affectedDev.model.toString(),
+                                    style: GoogleFonts.almarai(
+                                      height: 1,
+                                      textStyle: TextStyle(
+                                        color: transparentTextCol,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ]),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(bottom: bottomPadding),
+                              child: RichText(
+                                textAlign: TextAlign.start,
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                    text: 'IMEI: ',
+                                    style: GoogleFonts.almarai(
+                                      height: 1,
+                                      textStyle: TextStyle(
+                                        color: blueCol,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: affectedDev.imei,
+                                    style: GoogleFonts.almarai(
+                                      height: 1,
+                                      textStyle: TextStyle(
+                                        color: transparentTextCol,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ]),
+                              ),
+                            ),
+
+                            Padding(
+                              padding: EdgeInsets.only(bottom: bottomPadding),
+                              child: RichText(
+                                textAlign: TextAlign.start,
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                    text: 'State: ',
+                                    style: GoogleFonts.almarai(
+                                      height: 1,
+                                      textStyle: TextStyle(
+                                        color: blueCol,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: affectedDev.state,
+                                    style: GoogleFonts.almarai(
+                                      height: 1,
+                                      textStyle: TextStyle(
+                                        color: transparentTextCol,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ]),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+                Positioned(
+                  top: -4,
+                  right: -4,
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    color: Colors.redAccent,
+                    splashRadius: 1,
+                    onPressed: () async {
+                      prdCtr.removeAffected(affectedDev);
+                    },
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 /// Products
 Widget productCard(Product product, int index) {
   double bottomProdName = 9;
@@ -224,9 +341,8 @@ Widget productCard(Product product, int index) {
 
   Widget prodCard({VoidCallback? vcb}){
     goHistory(){
-      prdCtr.selectProduct(product); //tap on card
-      //vcb!();///pass to the open openBuilder
-      // prdCtr.showList = false;
+      prdCtr.selectProduct(product); //tap on edit
+      Get.to(()=>PhonePropertiesForm(isAdd: false));
       prdCtr.update();//add id to builder
     }
     return SwipeActionCell(
@@ -292,11 +408,17 @@ Widget productCard(Product product, int index) {
                     Row(
                       children: [
                         /// IMAGE
-                        Image.asset(
-                          'assets/images/phone-logos/${product.manufacturer}.png',
+                        StaticPhoneManufacturers.contains(product.manufacturer)? Image.asset(
+                           'assets/images/phone-logos/${product.manufacturer}.png',
                           fit: BoxFit.cover,
                           width: 90,
                           height: 90,
+                        ):
+                        Image.asset(
+                            'assets/images/phone-logos/brand.png' ,
+                          fit: BoxFit.cover,
+                          width: 50,
+                          height: 50,
                         ),
                         //ColoredRoundedSquare(edge: 100.w / 6, color: Colors.greenAccent),
                         const SizedBox(width: 16),
@@ -315,37 +437,33 @@ Widget productCard(Product product, int index) {
 
                             ///buy price
                             Padding(
-                              padding:  EdgeInsets.only(bottom: bottomProdBuy),
+                              padding: const EdgeInsets.only(bottom: 0),
                               child: RichText(
                                 locale: Locale(currLang!),
                                 textAlign: TextAlign.start,
+                                //softWrap: true,
                                 text: TextSpan(children: [
-                                  if (true)
-                                    TextSpan(
-                                        text: 'buy:'.tr,
-                                        style: GoogleFonts.almarai(
-                                          height: 1,
-                                          textStyle: TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
-                                        )),
                                   TextSpan(
-                                      text: '  ${formatNumberAfterComma2(product.currBuyPrice!)}',
+                                      text: 'RAM:'.tr,
+                                      style: GoogleFonts.almarai(
+                                        height: 1,
+                                        textStyle: TextStyle(color: transparentTextCol, fontSize: 11, fontWeight: FontWeight.w500),
+                                      )),
+                                  TextSpan(
+                                      text: '  ${(product.ram!)}',
                                       style: GoogleFonts.almarai(
                                         height: 1,
                                         textStyle: TextStyle(
-                                            color: product.currBuyPrice! <= 0.0 ? errorBuyCol : buyCol,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w400),
+                                            color:sellCol,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w500),
                                       )),
-                                  TextSpan(
-                                      text: '  $currency',
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle: const TextStyle(color: transparentTextCol, fontSize: 10, fontWeight: FontWeight.w500),
-                                      )),
+
                                 ]),
                               ),
                             ),
 
+                            SizedBox(height: 3,),
                             /// SELL PRICE
                             Padding(
                               padding: const EdgeInsets.only(bottom: 0),
@@ -355,29 +473,53 @@ Widget productCard(Product product, int index) {
                                 //softWrap: true,
                                 text: TextSpan(children: [
                                     TextSpan(
-                                        text: 'sell:'.tr,
+                                        text: 'Storage:'.tr,
                                         style: GoogleFonts.almarai(
                                           height: 1,
-                                          textStyle: TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
+                                          textStyle: TextStyle(color: transparentTextCol, fontSize: 11, fontWeight: FontWeight.w500),
                                         )),
                                   TextSpan(
-                                      text: '  ${formatNumberAfterComma2(product.currPrice!)}',
+                                      text: '  ${(product.storage!)}',
                                       style: GoogleFonts.almarai(
                                         height: 1,
                                         textStyle: TextStyle(
-                                            color: product.currPrice! <= product.currBuyPrice! ? errorSellyCol : sellCol,
-                                            fontSize: 16,
+                                            color:sellCol,
+                                            fontSize: 11,
                                             fontWeight: FontWeight.w500),
                                       )),
-                                  TextSpan(
-                                      text: '  $currency',
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle: const TextStyle(color: transparentTextCol, fontSize: 10, fontWeight: FontWeight.w500),
-                                      )),
+
                                 ]),
                               ),
                             ),
+                            SizedBox(height: 3,),
+
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 0),
+                              child: RichText(
+                                locale: Locale(currLang!),
+                                textAlign: TextAlign.start,
+                                //softWrap: true,
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                      text: 'Color:'.tr,
+                                      style: GoogleFonts.almarai(
+                                        height: 1,
+                                        textStyle: TextStyle(color: transparentTextCol, fontSize: 11, fontWeight: FontWeight.w500),
+                                      )),
+                                  TextSpan(
+                                      text: '  ${(product.color!)}',
+                                      style: GoogleFonts.almarai(
+                                        height: 1,
+                                        textStyle: TextStyle(
+                                            color:sellCol,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w500),
+                                      )),
+
+                                ]),
+                              ),
+                            ),
+
                           ],
                         ),
                       ],
@@ -422,591 +564,6 @@ Widget productCard(Product product, int index) {
 
   return prodCard();
 
-  // return OpenContainer(
-  //   transitionType: ContainerTransitionType.fadeThrough,
-  //  transitionDuration: const Duration(milliseconds: 500),
-  //  openBuilder: (BuildContext _,VoidCallback closeContainer){
-  //     //return ProductInfo();
-  //     return ProductInfoTab();
-  //  },
-  //  closedBuilder: (BuildContext _,VoidCallback openContainer){
-  //
-  //   return prodCard(vcb: openContainer);
-  //
-  // },
-  //
-  // );
-
-}
-
-// in prod history (sell & buy = bsProdCard , manual = manualProdChangeCard)
-Widget bsProdCard(key,index, { BuySellProd? bsProd, ProdChange? prodChange,Function()? whenRemove}) {
-   Invoice? inv;
-  if(bsProd!=null) inv = getInvoiceById(bsProd.invID!); //link this card with its invoice
-
-   double rowPadd = 18;
-  late Color typeClr;
-
-   String type = '';
-  if (key.startsWith("0s")) {
-    type = 'Sell';
-    typeClr = Colors.green;
-  } else if (key.startsWith("0b")) {
-    type = 'Buy';
-    typeClr = Colors.redAccent;
-  } else {
-    type = 'Manual';
-    typeClr = Colors.grey;
-
-  }
-
-
-  return SwipeActionCell(
-    controller: prdCtr.prodsHistorySwipeCtr,
-    index: index,
-    key: ValueKey(bsProd),
-    selectedForegroundColor: Colors.black.withAlpha(30),
-    //delete
-    leadingActions: [
-      SwipeAction(
-          title: "Remove",
-          performsFirstActionWithFullSwipe: true,
-
-          color:productRemoveSwipeCol ,
-          onTap: (handler) async {
-            await handler(true);
-
-            /// REMOVE
-            if (whenRemove != null) whenRemove(); // local remove
-          }),
-    ],
-    //##################################
-    child: GestureDetector(
-      onTap: () {
-        //if(!invActive) return;
-        if (inv != null) {
-          invCtr.selectInvoice(inv);
-          Get.to(() => AddEditInvoice(), arguments: {
-            'isAdd': false,
-            'isVerified': inv.verified,
-            'isBuy': false,
-          });
-        } else {
-          showSnack('invoice deleted'.tr, color: Colors.black54);
-        }
-      },
-      child: Container(
-        height: 120,
-        padding : const EdgeInsets.all(10),
-
-        child: Stack(
-          children: [
-            Card(
-
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                  side: BorderSide(color: productBorderCol, width: 1.5), borderRadius: BorderRadius.circular(13)),
-              color: productCardColor,
-              child: Container(
-                padding : const EdgeInsets.all(10),
-                child: Stack(
-                  children: [
-                    ///info bsProd
-                    if(bsProd!=null)  Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        monthSquare(bsProd.time!),//bsProd
-                        SizedBox(width: rowPadd),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            /// sell price & selled qty
-                            RichText(
-                              locale: Locale(currLang!),
-                              textAlign: TextAlign.start,
-                              //softWrap: true,
-                              text: TextSpan(children: [
-                                WidgetSpan(
-                                    child: SizedBox(
-                                      width: 0,
-                                    )),
-                                TextSpan(
-                                    text: '${formatNumberAfterComma2(bsProd.price!)}',
-                                    style: GoogleFonts.almarai(
-                                      height: 1,
-                                      textStyle: TextStyle(color: normalTextCol, fontSize: 18, fontWeight: FontWeight.w500),
-                                    )),
-                                TextSpan(
-                                    text: ' $currency',
-                                    style: GoogleFonts.almarai(
-                                      height: 1,
-                                      textStyle:
-                                      const TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
-                                    )),
-                                TextSpan(
-                                    text: '  (${bsProd.qty})',
-                                    style: GoogleFonts.almarai(
-                                      height: 1,
-                                      textStyle: TextStyle(color: normalTextCol, fontSize: 17, fontWeight: FontWeight.w500),
-                                    )),
-                              ]),
-                            ),
-                            SizedBox(height: 9),
-
-                            ///qty rest
-                            Text(
-                              '${'rest quantity:'.tr} ${bsProd.restQty}',
-                              style: TextStyle(color: normalTextCol, fontSize: 11),
-                            ),
-                            SizedBox(height: 5),
-
-                            ///total
-                            RichText(
-                              locale: Locale(currLang!),
-                              textAlign: TextAlign.start,
-                              //softWrap: true,
-                              text: TextSpan(children: [
-                                WidgetSpan(
-                                    child: SizedBox(
-                                      width: 0,
-                                    )),
-                                TextSpan(
-                                    text: 'total:'.tr,
-                                    style: GoogleFonts.almarai(
-                                      height: 1,
-                                      textStyle: TextStyle(color: normalTextCol, fontSize: 13, fontWeight: FontWeight.w500),
-                                    )),
-                                TextSpan(
-                                    text: '  ${formatNumberAfterComma2(bsProd.total!)}',
-                                    style: GoogleFonts.almarai(
-                                      height: 1,
-                                      textStyle: TextStyle(color: totalCol, fontSize: 13, fontWeight: FontWeight.w500),
-                                    )),
-                                TextSpan(
-                                    text: '  $currency',
-                                    style: GoogleFonts.almarai(
-                                      height: 1,
-                                      textStyle:
-                                      const TextStyle(color: transparentTextCol, fontSize: 10, fontWeight: FontWeight.w500),
-                                    )),
-                              ]),
-                            ),
-                            SizedBox(height: 5),
-
-                            ///invoice name or ID
-                           if(false) Padding(
-                              padding: const EdgeInsets.only(bottom: 0.0),
-                              child: RichText(
-                                locale: Locale(currLang!),
-                                textAlign: TextAlign.start,
-                                //softWrap: true,
-                                text: TextSpan(children: [
-                                  WidgetSpan(
-                                      child: SizedBox(
-                                        width: 0,
-                                      )),
-                                  TextSpan(
-                                      text: 'Info:'.tr,
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle: TextStyle(color: normalTextCol, fontSize: 11, fontWeight: FontWeight.w500),
-                                      )),
-                                  TextSpan(
-                                      text: '  ${(bsProd.to!)}',
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle: TextStyle(color: buyCol, fontSize: 13, fontWeight: FontWeight.w500),
-                                      )),
-                                  TextSpan(
-                                      text: inv != null ? '  N°${inv.index}' : '  ID°${bsProd.invID}',
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle:
-                                        const TextStyle(color: normalTextCol, fontSize: 9, fontWeight: FontWeight.w500),
-                                      )),
-                                ]),
-                              ),
-                            ),
-                            /// if "sell" show income if "buy" show society
-                           if(false)...[ if (type == 'buy')
-                              Text(
-                                //'society: ${bsProd.society} (${bsProd.mf})',
-                                '${'society:'.tr} ${bsProd.society}',
-                                style: TextStyle(color: Colors.white, fontSize: 13),
-                              ),
-                            if (type == 'sell')
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 0.0),
-                                child: RichText(
-                                  locale: Locale(currLang!),
-                                  textAlign: TextAlign.start,
-                                  //softWrap: true,
-                                  text: TextSpan(children: [
-                                    WidgetSpan(
-                                        child: SizedBox(
-                                      width: 0,
-                                    )),
-                                    TextSpan(
-                                        text: 'income:'.tr,
-                                        style: GoogleFonts.almarai(
-                                          height: 1,
-                                          textStyle: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-                                        )),
-                                    TextSpan(
-                                        text: '  ${formatNumberAfterComma2(bsProd.income!)}',
-                                        style: GoogleFonts.almarai(
-                                          height: 1,
-                                          textStyle: TextStyle(color:bsProd.income! >0? winIncomeCol:looseIncomeCol, fontSize: 13, fontWeight: FontWeight.w500),
-                                        )),
-                                    TextSpan(
-                                        text: '  $currency',
-                                        style: GoogleFonts.almarai(
-                                          height: 1,
-                                          textStyle:
-                                              const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w500),
-                                        )),
-                                  ]),
-                                ),
-                              ),],
-                          ],
-                        ),
-                      ],
-                    ),
-                    ///Info manual
-                    if(prodChange!=null)  Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        monthSquare(prodChange.time!),//manual
-                        SizedBox(width: rowPadd),
-
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            /// sell price
-
-                            if (prodChange.sellPrice! != 88888)
-                              RichText(
-                                locale: Locale(currLang!),
-                                textAlign: TextAlign.start,
-                                //softWrap: true,
-                                text: TextSpan(children: [
-                                  WidgetSpan(
-                                      child: SizedBox(
-                                        width: 0,
-                                      )),
-                                  TextSpan(
-                                      text: 'price:'.tr,
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle: TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
-                                      )),
-                                  TextSpan(
-                                      text: '  ${formatNumberAfterComma2(prodChange.sellPrice!)}',
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle: TextStyle(color: normalTextCol, fontSize: 16, fontWeight: FontWeight.w500),
-                                      )),
-                                  TextSpan(
-                                      text: '  $currency',
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle:
-                                        const TextStyle(color: transparentTextCol, fontSize: 11, fontWeight: FontWeight.w500),
-                                      )),
-                                ]),
-                              ),
-                            SizedBox(
-                              height: 8,
-                            ),
-
-                            /// buy price
-
-                            if (prodChange.buyPrice! != 88888)
-                              RichText(
-                                locale: Locale(currLang!),
-                                textAlign: TextAlign.start,
-                                //softWrap: true,
-                                text: TextSpan(children: [
-                                  WidgetSpan(
-                                      child: SizedBox(
-                                        width: 0,
-                                      )),
-                                  TextSpan(
-                                      text: 'buy price:'.tr,
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle: TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
-                                      )),
-                                  TextSpan(
-                                      text: '  ${formatNumberAfterComma2(prodChange.buyPrice!)}',
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle: TextStyle(color: normalTextCol, fontSize: 16, fontWeight: FontWeight.w500),
-                                      )),
-                                  TextSpan(
-                                      text: '  $currency',
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle:
-                                        const TextStyle(color: transparentTextCol, fontSize: 11, fontWeight: FontWeight.w500),
-                                      )),
-                                ]),
-                              ),
-                            SizedBox(
-                              height: 8,
-                            ),
-
-                            ///qty
-                            if (prodChange.qty! != 88888)
-                              RichText(
-                                locale: Locale(currLang!),
-                                textAlign: TextAlign.start,
-                                //softWrap: true,
-                                text: TextSpan(children: [
-                                  TextSpan(
-                                      text: 'qty:'.tr,
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle: TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
-                                      )),
-                                  TextSpan(
-                                      text: '  ${prodChange.qty}',
-                                      style: GoogleFonts.almarai(
-                                        height: 1,
-                                        textStyle: TextStyle(color: normalTextCol, fontSize: 16, fontWeight: FontWeight.w500),
-                                      )),
-                                ]),
-                              ),
-
-                            SizedBox(height: 5),
-                          ],
-                        ),
-                      ],
-                    ),
-                    ///Type
-                    Positioned(
-                      bottom: 5,
-                      right: (currLang == 'ar') ? null : 8, //english
-                      left: (currLang == 'ar') ? 8 : null, //arabic
-                      child: Text(
-                        type.tr.toUpperCase(),
-                        style: TextStyle(
-                            color: typeClr,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
-//depricated
-Widget manualProdChangeCard(String key, ProdChange prodChange,index, {Function()? whenRemove}) {
-  double cardHei = 100;
-
-  return SwipeActionCell(
-    controller: prdCtr.prodsHistorySwipeCtr,
-    index: index,
-    key: ValueKey(prodChange),
-    selectedForegroundColor: Colors.black.withAlpha(30),
-    //delete
-    leadingActions: [
-      SwipeAction(
-          title: "Remove",
-          color:productRemoveSwipeCol ,
-          onTap: (handler) async {
-            await handler(true);
-            /// REMOVE
-            if (whenRemove != null) whenRemove(); // local remove
-          }),
-    ],
-    //##################################
-    child: Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: Container(
-        width: 100.w,
-        height: cardHei,
-        child: Stack(
-          children: [
-            Card(
-              color: cardColor,
-              elevation: 50,
-              shape: RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.white38, width: 2), borderRadius: BorderRadius.circular(20)),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(10, 5, 15, 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 15),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        monthSquare(prodChange.time!),
-                        SizedBox(width: 10),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            /// sell price
-
-                            if (prodChange.sellPrice! != 88888)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 0.0),
-                                child: RichText(
-                                  locale: Locale(currLang!),
-                                  textAlign: TextAlign.start,
-                                  //softWrap: true,
-                                  text: TextSpan(children: [
-                                    WidgetSpan(
-                                        child: SizedBox(
-                                          width: 0,
-                                        )),
-                                    TextSpan(
-                                        text: 'price:'.tr,
-                                        style: GoogleFonts.almarai(
-                                          height: 1,
-                                          textStyle: TextStyle(color: transparentTextCol, fontSize: 15, fontWeight: FontWeight.w500),
-                                        )),
-                                    TextSpan(
-                                        text: '  ${formatNumberAfterComma2(prodChange.sellPrice!)}',
-                                        style: GoogleFonts.almarai(
-                                          height: 1,
-                                          textStyle: TextStyle(color: normalTextCol, fontSize: 17, fontWeight: FontWeight.w500),
-                                        )),
-                                    TextSpan(
-                                        text: '  $currency',
-                                        style: GoogleFonts.almarai(
-                                          height: 1,
-                                          textStyle:
-                                          const TextStyle(color: transparentTextCol, fontSize: 14, fontWeight: FontWeight.w500),
-                                        )),
-                                  ]),
-                                ),
-                              ),
-                            SizedBox(
-                              height: 11,
-                            ),
-
-                            /// buy price
-
-                            if (prodChange.buyPrice! != 88888)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 0.0),
-                                child: RichText(
-                                  locale: Locale(currLang!),
-                                  textAlign: TextAlign.start,
-                                  //softWrap: true,
-                                  text: TextSpan(children: [
-                                    WidgetSpan(
-                                        child: SizedBox(
-                                          width: 0,
-                                        )),
-                                    TextSpan(
-                                        text: 'buy price:'.tr,
-                                        style: GoogleFonts.almarai(
-                                          height: 1,
-                                          textStyle: TextStyle(color: transparentTextCol, fontSize: 15, fontWeight: FontWeight.w500),
-                                        )),
-                                    TextSpan(
-                                        text: '  ${formatNumberAfterComma2(prodChange.buyPrice!)}',
-                                        style: GoogleFonts.almarai(
-                                          height: 1,
-                                          textStyle: TextStyle(color: normalTextCol, fontSize: 17, fontWeight: FontWeight.w500),
-                                        )),
-                                    TextSpan(
-                                        text: '  $currency',
-                                        style: GoogleFonts.almarai(
-                                          height: 1,
-                                          textStyle:
-                                          const TextStyle(color: transparentTextCol, fontSize: 14, fontWeight: FontWeight.w500),
-                                        )),
-                                  ]),
-                                ),
-                              ),
-                            SizedBox(
-                              height: 11,
-                            ),
-
-                            ///qty
-                            if (prodChange.qty! != 88888)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 0.0),
-                                child: RichText(
-                                  locale: Locale(currLang!),
-                                  textAlign: TextAlign.start,
-                                  //softWrap: true,
-                                  text: TextSpan(children: [
-                                    TextSpan(
-                                        text: 'qty:'.tr,
-                                        style: GoogleFonts.almarai(
-                                          height: 1,
-                                          textStyle: TextStyle(color: transparentTextCol, fontSize: 15, fontWeight: FontWeight.w500),
-                                        )),
-                                    TextSpan(
-                                        text: '  ${prodChange.qty}',
-                                        style: GoogleFonts.almarai(
-                                          height: 1,
-                                          textStyle: TextStyle(color: normalTextCol, fontSize: 17, fontWeight: FontWeight.w500),
-                                        )),
-                                  ]),
-                                ),
-                              ),
-
-                            SizedBox(height: 5),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            ///Type
-            Positioned(
-              bottom: 13,
-              right: (currLang == 'ar') ? null : 13, //english
-              left: (currLang == 'ar') ? 13 : null, //arabic
-              child: Text(
-                'MANUAL',
-                style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500),
-              ),
-            ),
-
-            ///remove
-          if(false)  Positioned(
-              top: 13,
-              right: (currLang == 'ar') ? null : 13, //english
-              left: (currLang == 'ar') ? 13 : null, //arabic
-              child: GestureDetector(
-                child: Icon(
-                  size: 20,
-                  Icons.close,
-                  //weight: 50,
-                  color: Colors.white.withOpacity(0.35),
-                ),
-                onTap: () {
-                  //delete from "selectedMonthMap" to refresh screen after delete
-                  if (whenRemove != null) whenRemove(); // local remove
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
 }
 
 ///Invoice
@@ -1069,7 +626,7 @@ Widget invCard(Invoice inv, int index, {bool ofToday = false}) {
                       padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 15.0),
                       child: Text(
                         '${getDayString(inv.timeReturn!)}  ${getMonthString(inv.timeReturn!)}',
-                        style: TextStyle(color: Colors.white, fontSize: 17),
+                        style: TextStyle(color: normalTextCol, fontSize: 17),
                       ),
                     ),
                     Expanded(
@@ -1107,7 +664,7 @@ Widget invCard(Invoice inv, int index, {bool ofToday = false}) {
                               text: ' / ',
                               style: GoogleFonts.almarai(
                                 height: 1,
-                                textStyle: TextStyle(color: Colors.white54, fontSize: 15, fontWeight: FontWeight.w500),
+                                textStyle: TextStyle(color: transparentTextCol, fontSize: 15, fontWeight: FontWeight.w500),
                               )),
                           TextSpan(
                               text: '${formatNumberAfterComma2(dayTotalSell)}',
@@ -1119,7 +676,7 @@ Widget invCard(Invoice inv, int index, {bool ofToday = false}) {
                               text: '  $currency',
                               style: GoogleFonts.almarai(
                                 height: 1,
-                                textStyle: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w500),
+                                textStyle: const TextStyle(color: transparentTextCol, fontSize: 10, fontWeight: FontWeight.w500),
                               )),
                         ]),
                       ),
@@ -1137,7 +694,7 @@ Widget invCard(Invoice inv, int index, {bool ofToday = false}) {
               children: [
                 Card(
                   color: cardColor,
-                  elevation: 50,
+                  elevation: 6,
                   shape: RoundedRectangleBorder(
                       side: BorderSide(color: isDateToday(inv.timeReturn!) ? activeCardBorder : normalCardBorder, width: 2),
                       borderRadius: BorderRadius.circular(20)),
@@ -1172,14 +729,14 @@ Widget invCard(Invoice inv, int index, {bool ofToday = false}) {
                                               '${(!kIsWeb && inv.clientName!.length > 20) ? '${inv.clientName!.substring(0, 19)}...' : inv.clientName}',
                                           style: GoogleFonts.almarai(
                                             height: 1,
-                                            textStyle: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+                                            textStyle: TextStyle(color: normalTextCol, fontSize: 16, fontWeight: FontWeight.w500),
                                           )),
                                      if(cUser.isAdmin) TextSpan(
                                           text: '  ${inv.workSpace!.tr}',
                                           style: GoogleFonts.almarai(
                                             height: 1,
                                             textStyle:
-                                                const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w500),
+                                                const TextStyle(color: transparentTextCol, fontSize: 10, fontWeight: FontWeight.w500),
                                           )),
                                     ]),
                                   ),
@@ -1198,7 +755,7 @@ Widget invCard(Invoice inv, int index, {bool ofToday = false}) {
                                           text: 'Total:'.tr,
                                           style: GoogleFonts.almarai(
                                             height: 1,
-                                            textStyle: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                                            textStyle: TextStyle(color: normalTextCol, fontSize: 13, fontWeight: FontWeight.w500),
                                           )),
                                       TextSpan(
                                           text:
@@ -1215,7 +772,7 @@ Widget invCard(Invoice inv, int index, {bool ofToday = false}) {
                                           style: GoogleFonts.almarai(
                                             height: 1,
                                             textStyle:
-                                                const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w500),
+                                                const TextStyle(color: transparentTextCol, fontSize: 10, fontWeight: FontWeight.w500),
                                           )),
                                     ]),
                                   ),
@@ -1240,7 +797,7 @@ Widget invCard(Invoice inv, int index, {bool ofToday = false}) {
                                             style: GoogleFonts.almarai(
                                               height: 1,
                                               textStyle:
-                                                  TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                                                  TextStyle(color: normalTextCol  , fontSize: 13, fontWeight: FontWeight.w500),
                                             )),
                                         TextSpan(
                                             text: '  ${formatNumberAfterComma2(inv.income!)}',
@@ -1253,7 +810,7 @@ Widget invCard(Invoice inv, int index, {bool ofToday = false}) {
                                             style: GoogleFonts.almarai(
                                               height: 1,
                                               textStyle: const TextStyle(
-                                                  color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w500),
+                                                  color: transparentTextCol, fontSize: 10, fontWeight: FontWeight.w500),
                                             )),
                                       ]),
                                     ),
@@ -1283,7 +840,7 @@ Widget invCard(Invoice inv, int index, {bool ofToday = false}) {
                                             style: GoogleFonts.almarai(
                                               height: 1,
                                               textStyle: const TextStyle(
-                                                  color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w500),
+                                                  color: transparentTextCol, fontSize: 10, fontWeight: FontWeight.w500),
                                             )),
                                       ]),
                                     ),
@@ -1308,7 +865,7 @@ Widget invCard(Invoice inv, int index, {bool ofToday = false}) {
                       size: 20,
                       Icons.close,
                       //weight: 50,
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.redAccent.withOpacity(0.5),
                     ),
                     onTap: () async {
                       invCtr.removeInvoice(inv);
@@ -1324,10 +881,10 @@ Widget invCard(Invoice inv, int index, {bool ofToday = false}) {
                   child: Row(
                     children: [
                       CircleAvatar(
-                        backgroundColor: inv.verified! ? Colors.greenAccent.withOpacity(0.3) : waitingCol.withOpacity(0.2),
+                        backgroundColor: inv.verified! ? Colors.greenAccent.withOpacity(0.3) : Colors.orange.withOpacity(0.2),
                         radius: 18,
                         child: Icon(
-                          color: inv.verified! ? Colors.greenAccent : waitingCol,
+                          color: inv.verified! ? Colors.greenAccent : Colors.orange,
                           inv.verified! ? Icons.check : Icons.access_time_rounded,
                         ),
                       ),
@@ -1345,48 +902,96 @@ Widget invCard(Invoice inv, int index, {bool ofToday = false}) {
 
 //the card with slider
 Widget addingCard({bool canRemove = false}) {
-  double cardHei = 285;
+  double cardHei = 210;
   Color incomeCol = invCtr.addingCardInvProd.income! > 0 ? winIncomeCol : looseIncomeCol;
   bool isBuy = invCtr.isBuy;
 
-  DropdownButton buildDropdown(List<Product> productList) {
-    return DropdownButton<Product>(
-      value: invCtr.addingCardProd,
-      items: productList.map((Product product) {
-        return DropdownMenuItem(
-          value: product,
-          child: Text(product.name ?? ''),
-        );
-      }).toList(),
-      dropdownColor: dropDownCol,
+  Widget buildDropdown0(List<Product> productList) {
+    return Container(
+      width: 50.w,
 
-      ///when pick new product
-      onChanged: (selectedProduct) {
-        // Handle the selected product
-        if (selectedProduct != null) {
-          //Product prod = invCtr.selectedInvProdToAdd ;
-          invCtr.addingCardProd = selectedProduct; //selected dropDown Product
+      child: DropdownButtonFormField<Product>(
+        style: TextStyle(color: dialogFieldWriteCol, fontSize: 11),
+        isExpanded: true,
+        dropdownColor: bgCol,
+        decoration: InputDecoration(
+          labelText: 'Model',
+          filled: false,
+          isCollapsed: false,
+          isDense: true,
 
-          if (!isBuy) {
-            invCtr.maxQty = selectedProduct.currQtyReduced[cWs]!.toDouble(); // same 2 line in initAddingCard()
-          } else {
-            invCtr.maxQty = 20000;
+          focusColor:  Colors.white,
+          fillColor:  Colors.white,
+          hoverColor: Colors.white,
+          contentPadding: const EdgeInsets.only(bottom:10, right: 0, left: 10),
+          // suffixIconConstraints: BoxConstraints(minWidth: 50,),
+          //  prefixIconConstraints: BoxConstraints(minWidth: 50),
+         // constraints:BoxConstraints(maxWidth: 20,maxHeight: 50) ,
+
+          border: InputBorder.none,
+          disabledBorder: InputBorder.none,
+          hintStyle: TextStyle(color: dialogFieldHintCol, fontSize: 14.5),
+
+          labelStyle: TextStyle(color: dialogFieldLabelCol, fontSize: 14.5),
+
+          errorStyle: TextStyle(color: dialogFieldErrorUnfocusBorderCol.withOpacity(.9), fontSize: 12, letterSpacing: 1),
+
+          enabledBorder: UnderlineInputBorder(borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: primaryColor)),
+          focusedBorder: UnderlineInputBorder(borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: dialogFieldDisableBorderCol)),
+
+        ),
+        value: invCtr.addingCardProd,
+        items: productList.map((Product product) {
+          return DropdownMenuItem(
+            value: product,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 0.0),
+              child: RichText(
+                textAlign: TextAlign.start,
+                maxLines: 1,
+                softWrap: true,
+                text: TextSpan(children: [
+
+
+                  TextSpan(
+                      text:product.name,
+                      style: GoogleFonts.almarai(
+                        height: 1,
+                        textStyle: TextStyle(color: primaryColor.withOpacity(0.7), fontSize: 14, fontWeight: FontWeight.w500),
+                      )),
+                  TextSpan(
+                      text: '   ${product.ram} - ${product.storage}',
+                      style: GoogleFonts.almarai(
+                        height: 1,
+                        textStyle: const TextStyle(
+                            color: transparentTextCol, fontSize: 10, fontWeight: FontWeight.w400),
+                      )),
+                ]),
+              ),
+            ),
+
+          );
+        }).toList(),
+        onChanged: (selectedProduct) {
+          // Handle the selected product
+          if (selectedProduct != null) {
+            //Product prod = invCtr.selectedInvProdToAdd ;
+            invCtr.addingCardProd = selectedProduct; //selected dropDown Product
+
+            if (!isBuy) {
+              invCtr.maxQty = selectedProduct.currQtyReduced[cWs]!.toDouble(); // same 2 line in initAddingCard()
+              print('## currQtyReduced[cWs] = ${invCtr.maxQty}');
+            } else {
+              invCtr.maxQty = 20000;
+            }
+            invCtr.sliderVal = 0.0;
+
+            invCtr.updateAddingCard(updatePriceField: true); //update sell price textField
+            invCtr.update(['addingCard']);
+            print('## Selected Product: ${selectedProduct.name}');
           }
-          invCtr.sliderVal = 0.0;
-
-          invCtr.updateAddingCard(updatePriceField: true); //update sell price textField
-          invCtr.update(['addingCard']);
-          //invCtr.invToAddPriceTec.text = invCtr.selectedInvProdToAdd.priceSell!.toInt().toString();
-
-          // InvProd invProd = InvProd(
-          //   priceBuy: selectedProduct.currBuyPrice,
-          //   priceSell: selectedProduct.currPrice,
-          //
-          // );
-          // invCtr.selectedInvProdToAdd = invProd;
-          print('## Selected Product: ${selectedProduct.name}');
-        }
-      },
+        },
+      ),
     );
   }
 
@@ -1399,11 +1004,11 @@ Widget addingCard({bool canRemove = false}) {
         children: [
           Card(
             color: cardColor,
-            elevation: 50,
+            elevation: 5,
             shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.white38, width: 2), borderRadius: BorderRadius.circular(20)),
+                side: BorderSide(color: productBorderCol, width: 2), borderRadius: BorderRadius.circular(20)),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 20, 15, 10),
+              padding: const EdgeInsets.fromLTRB(10, 30, 20, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1417,28 +1022,29 @@ Widget addingCard({bool canRemove = false}) {
                         /// dropdown / price
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ///dropdown
                             Padding(
                               padding: const EdgeInsets.only(left: 10.0),
                               child: invCtr.productsOfAddingCard.length > 0
-                                  ? SizedBox(width: 44.w, height: 40, child: buildDropdown(invCtr.productsOfAddingCard))
+                                  ?   buildDropdown0(invCtr.productsOfAddingCard)
                                   : Container(),
                             ),
-                            SizedBox(width: 5.w),
+                            SizedBox(width: 3.w),
 
                             ///price
                             SizedBox(
-                              width: 28.w,
+                              width: 20.w,
                               height: 70,
                               child: TextFormField(
-                                maxLength: 9,
+                                //maxLength: 9,
                                 onChanged: (val) {
                                   invCtr.updateAddingCard();
                                 },
                                 controller: invCtr.addingPriceTec,
                                 keyboardType: TextInputType.number,
-                                style: TextStyle(color: Colors.white, fontSize: 14.5),
+                                style: TextStyle(color: normalTextCol, fontSize: 14.5),
                                 validator: (value) {
                                   final numberRegExp = RegExp(r'^\d*\.?\d+$');
 
@@ -1458,68 +1064,56 @@ Widget addingCard({bool canRemove = false}) {
                                   focusColor: Colors.white,
                                   fillColor: Colors.white,
                                   hoverColor: Colors.white,
-                                  contentPadding: const EdgeInsets.only(bottom: 0, left: 20, top: 0),
+                                  contentPadding: const EdgeInsets.only(bottom: 0, left: 5, top: 5),
                                   suffixIconConstraints: BoxConstraints(minWidth: 50),
                                   prefixIconConstraints: BoxConstraints(minWidth: 50),
                                   border: InputBorder.none,
                                   hintText: ''.tr,
                                   labelText: 'Price'.tr,
-                                  labelStyle: TextStyle(color: Colors.white60, fontSize: 14.5),
-                                  hintStyle: TextStyle(color: Colors.white30, fontSize: 14.5),
+                                  labelStyle: TextStyle(color: transparentTextCol, fontSize: 14.5),
+                                  hintStyle: TextStyle(color: transparentTextCol, fontSize: 14.5),
                                   errorStyle: TextStyle(color: Colors.redAccent.withOpacity(.9), fontSize: 12, letterSpacing: 1),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: Colors.white38)),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: Colors.white70)),
-                                  errorBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(100),
-                                      borderSide: BorderSide(color: Colors.redAccent.withOpacity(.7))),
-                                  focusedErrorBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: Colors.redAccent)),
+                                  enabledBorder: UnderlineInputBorder(borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: dialogFieldEnableBorderCol)),
+                                  focusedBorder: UnderlineInputBorder(borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: dialogFieldEnableBorderCol)),
+                                  errorBorder: UnderlineInputBorder(borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: dialogFieldErrorUnfocusBorderCol)),
+                                  focusedErrorBorder: UnderlineInputBorder(borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: dialogFieldErrorUnfocusBorderCol)),
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 7),
+                        SizedBox(height: 13),
 
-                        /// slider / qty
+                        /// - / qty / +
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            ///slider
-                            SizedBox(
-                              width: 50.w,
-                              height: 50,
-                              child: RotatedBox(
-                                quarterTurns: 4,
-                                child: Slider(
-                                  inactiveColor: Colors.white.withOpacity(0.4),
-                                  divisions: invCtr.maxQty.toInt() > 0 ? invCtr.maxQty.toInt() : 1,
-                                  min: 0,
-                                  max: invCtr.maxQty,
-                                  value: invCtr.sliderVal,
-                                  onChangeEnd: (val) async {
-                                    // invCtr.sliderVal;
-                                    // invCtr.update(['addingCard']);
-                                  },
-                                  onChanged: (val) {
-                                    invCtr.sliderVal = val;
-                                    invCtr.addingQtyTec.text = val.toInt().toString(); // slider update textField
-                                    //invCtr.selectedInvProdToAdd.qty = val.toInt();
-                                    //invCtr.update(['addingCard']);
-                                    invCtr.updateAddingCard();
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 13.0),
+                              child: CircleAvatar(
+                                backgroundColor: dialogBtnOkCol.withOpacity(.7),
+                                radius: 15,
+                                child: IconButton(
+                                  padding: EdgeInsets.zero,
+                                  icon: Icon(Icons.remove, size: 19),
+                                  color: Colors.white,
+                                  onPressed: () {
+                                   if(invCtr.sliderVal>0) {
+                                      invCtr.sliderVal--;
+                                      invCtr.addingQtyTec.text = invCtr.sliderVal.toInt().toString(); // slider update textField
+                                      invCtr.updateAddingCard();
+                                    }
                                   },
                                 ),
                               ),
                             ),
-
                             ///qty
                             SizedBox(
                               width: 28.w,
                               height: 70,
                               child: TextFormField(
-                                maxLength: 6,
+                                //maxLength: 6,
                                 onChanged: (val) {
                                   try {
                                     double parsedValue = double.parse(val);
@@ -1537,7 +1131,7 @@ Widget addingCard({bool canRemove = false}) {
                                 },
                                 controller: invCtr.addingQtyTec,
                                 keyboardType: TextInputType.number,
-                                style: TextStyle(color: Colors.white, fontSize: 14.5),
+                                style: TextStyle(color: normalTextCol, fontSize: 14.5),
                                 validator: (value) {
                                   RegExp positiveIntegerPattern = RegExp(r'^\d+$');
 
@@ -1562,188 +1156,202 @@ Widget addingCard({bool canRemove = false}) {
                                   border: InputBorder.none,
                                   hintText: ''.tr,
                                   labelText: 'Qty'.tr,
-                                  labelStyle: TextStyle(color: Colors.white60, fontSize: 14.5),
-                                  hintStyle: TextStyle(color: Colors.white30, fontSize: 14.5),
+                                  labelStyle: TextStyle(color: transparentTextCol, fontSize: 14.5),
+                                  hintStyle: TextStyle(color: transparentTextCol, fontSize: 14.5),
                                   errorStyle: TextStyle(color: Colors.redAccent.withOpacity(.9), fontSize: 12, letterSpacing: 1),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: Colors.white38)),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: Colors.white70)),
-                                  errorBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(100),
-                                      borderSide: BorderSide(color: Colors.redAccent.withOpacity(.7))),
-                                  focusedErrorBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: Colors.redAccent)),
+                                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: dialogFieldEnableBorderCol)),
+                                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: dialogFieldEnableBorderCol)),
+                                  errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: dialogFieldErrorUnfocusBorderCol)),
+                                  focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(100), borderSide: BorderSide(color: dialogFieldErrorUnfocusBorderCol)),
                                 ),
                               ),
                             ),
+
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 13.0),
+                              child: CircleAvatar(
+                                backgroundColor: dialogBtnOkCol.withOpacity(.7),
+                                radius: 15,
+                                child: IconButton(
+                                  padding: EdgeInsets.zero,
+                                  icon: Icon(Icons.add, size: 19),
+                                  color: Colors.white,
+                                  onPressed: () {
+                                    invCtr.sliderVal ++;
+                                    invCtr.addingQtyTec.text = invCtr.sliderVal.toInt().toString(); // slider update textField
+                                    invCtr.updateAddingCard();
+                                  },
+                                ),
+                              ),
+                            ),
+
                           ],
                         ),
 
                         /// /////////////////////////////////////////////////////////////////////
-                        SizedBox(height: cardHei / 15),
-
-                        ///sell calc
-                        if (!isBuy)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 0.0),
-                            child: RichText(
-                              locale: Locale(currLang!),
-                              textAlign: TextAlign.start,
-                              //softWrap: true,
-                              text: TextSpan(children: [
-                                WidgetSpan(
-                                    child: SizedBox(
-                                  width: 0,
-                                )),
-                                TextSpan(
-                                    text: 'total Sell:'.tr,
-                                    style: GoogleFonts.almarai(
-                                      height: 1.8,
-                                      textStyle:
-                                          const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500),
-                                    )),
-                                TextSpan(
-                                    text: ' ${formatNumberAfterComma2(invCtr.addingCardInvProd.priceSell!)} ',
-                                    style: GoogleFonts.almarai(
-                                      height: 1.8,
-                                      textStyle: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-                                    )),
-                                TextSpan(
-                                    text: 'x'.tr,
-                                    style: GoogleFonts.almarai(
-                                      height: 1.8,
-                                      textStyle:
-                                          const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500),
-                                    )),
-                                TextSpan(
-                                    text: ' (${invCtr.addingCardInvProd.qty!})  ',
-                                    style: GoogleFonts.almarai(
-                                      height: 1.8,
-                                      textStyle: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-                                    )),
-                                TextSpan(
-                                    text: '='.tr,
-                                    style: GoogleFonts.almarai(
-                                      height: 1.8,
-                                      textStyle:
-                                          const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500),
-                                    )),
-                                TextSpan(
-                                    text: ' ${formatNumberAfterComma2(invCtr.addingCardInvProd.totalSell!)} ',
-                                    style: GoogleFonts.almarai(
-                                      height: 1.8,
-                                      textStyle: TextStyle(color: totalCol, fontSize: 13, fontWeight: FontWeight.w500),
-                                    )),
-
-                                ///currency
-                                TextSpan(
-                                    text: '  $currency',
-                                    style: GoogleFonts.almarai(
-                                      height: 1.8,
-                                      textStyle:
-                                          const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w500),
-                                    )),
-                              ]),
-                            ),
-                          ),
-
-                        ///buy calc
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 0.0),
-                          child: RichText(
-                            locale: Locale(currLang!),
-                            textAlign: TextAlign.start,
-                            //softWrap: true,
-                            text: TextSpan(children: [
-                              WidgetSpan(
-                                  child: SizedBox(
-                                width: 0,
-                              )),
-                              TextSpan(
-                                  text: 'total Buy:'.tr,
-                                  style: GoogleFonts.almarai(
-                                    height: 1.8,
-                                    textStyle: const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500),
-                                  )),
-                              TextSpan(
-                                  text: ' ${formatNumberAfterComma2(invCtr.addingCardInvProd.priceBuy!)} ',
-                                  style: GoogleFonts.almarai(
-                                    height: 1.8,
-                                    textStyle: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-                                  )),
-                              TextSpan(
-                                  text: 'x'.tr,
-                                  style: GoogleFonts.almarai(
-                                    height: 1.8,
-                                    textStyle: const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500),
-                                  )),
-                              TextSpan(
-                                  text: ' (${invCtr.addingCardInvProd.qty!})  ',
-                                  style: GoogleFonts.almarai(
-                                    height: 1.8,
-                                    textStyle: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-                                  )),
-                              TextSpan(
-                                  text: '='.tr,
-                                  style: GoogleFonts.almarai(
-                                    height: 1.8,
-                                    textStyle: const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500),
-                                  )),
-                              TextSpan(
-                                  text: ' ${formatNumberAfterComma2(invCtr.addingCardInvProd.totalBuy!)} ',
-                                  style: GoogleFonts.almarai(
-                                    height: 1.8,
-                                    textStyle: const TextStyle(color: invBuyCol, fontSize: 13, fontWeight: FontWeight.w500),
-                                  )),
-
-                              ///currency
-                              TextSpan(
-                                  text: '  $currency',
-                                  style: GoogleFonts.almarai(
-                                    height: 1.8,
-                                    textStyle: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w500),
-                                  )),
-                            ]),
-                          ),
-                        ),
-
-                        ///income calc
-                        if (!isBuy)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 0.0),
-                            child: RichText(
-                              locale: Locale(currLang!),
-                              textAlign: TextAlign.start,
-                              //softWrap: true,
-                              text: TextSpan(children: [
-                                WidgetSpan(
-                                    child: SizedBox(
-                                  width: 0,
-                                )),
-                                TextSpan(
-                                    text: 'income:'.tr,
-                                    style: GoogleFonts.almarai(
-                                      height: 1.8,
-                                      textStyle: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-                                    )),
-                                TextSpan(
-                                    text: ' ${formatNumberAfterComma2(invCtr.addingCardInvProd.income!)}',
-                                    style: GoogleFonts.almarai(
-                                      height: 1.8,
-                                      textStyle: TextStyle(color: incomeCol, fontSize: 13, fontWeight: FontWeight.w500),
-                                    )),
-                                TextSpan(
-                                    text: '  $currency',
-                                    style: GoogleFonts.almarai(
-                                      height: 1.8,
-                                      textStyle:
-                                          const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w500),
-                                    )),
-                              ]),
-                            ),
-                          ),
-                        SizedBox(height: 5),
+                        // SizedBox(height: cardHei / 15),
+                        //
+                        // ///sell calc
+                        // if (!isBuy)
+                        //   Padding(
+                        //     padding: const EdgeInsets.only(bottom: 0.0),
+                        //     child: RichText(
+                        //       locale: Locale(currLang!),
+                        //       textAlign: TextAlign.start,
+                        //       //softWrap: true,
+                        //       text: TextSpan(children: [
+                        //         WidgetSpan(
+                        //             child: SizedBox(
+                        //           width: 0,
+                        //         )),
+                        //         TextSpan(
+                        //             text: 'total Sell:'.tr,
+                        //             style: GoogleFonts.almarai(
+                        //               height: 1.8,
+                        //               textStyle:
+                        //                   const TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
+                        //             )),
+                        //         TextSpan(
+                        //             text: ' ${formatNumberAfterComma2(invCtr.addingCardInvProd.priceSell!)} ',
+                        //             style: GoogleFonts.almarai(
+                        //               height: 1.8,
+                        //               textStyle: const TextStyle(color: normalTextCol, fontSize: 13, fontWeight: FontWeight.w500),
+                        //             )),
+                        //         TextSpan(
+                        //             text: 'x'.tr,
+                        //             style: GoogleFonts.almarai(
+                        //               height: 1.8,
+                        //               textStyle:
+                        //                   const TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
+                        //             )),
+                        //         TextSpan(
+                        //             text: ' (${invCtr.addingCardInvProd.qty!})  ',
+                        //             style: GoogleFonts.almarai(
+                        //               height: 1.8,
+                        //               textStyle: const TextStyle(color: normalTextCol, fontSize: 13, fontWeight: FontWeight.w500),
+                        //             )),
+                        //         TextSpan(
+                        //             text: '='.tr,
+                        //             style: GoogleFonts.almarai(
+                        //               height: 1.8,
+                        //               textStyle:
+                        //                   const TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
+                        //             )),
+                        //         TextSpan(
+                        //             text: ' ${formatNumberAfterComma2(invCtr.addingCardInvProd.totalSell!)} ',
+                        //             style: GoogleFonts.almarai(
+                        //               height: 1.8,
+                        //               textStyle: TextStyle(color: totalCol, fontSize: 13, fontWeight: FontWeight.w500),
+                        //             )),
+                        //
+                        //         ///currency
+                        //         TextSpan(
+                        //             text: '  $currency',
+                        //             style: GoogleFonts.almarai(
+                        //               height: 1.8,
+                        //               textStyle:
+                        //                   const TextStyle(color: transparentTextCol, fontSize: 10, fontWeight: FontWeight.w500),
+                        //             )),
+                        //       ]),
+                        //     ),
+                        //   ),
+                        //
+                        // ///buy calc
+                        // Padding(
+                        //   padding: const EdgeInsets.only(bottom: 0.0),
+                        //   child: RichText(
+                        //     locale: Locale(currLang!),
+                        //     textAlign: TextAlign.start,
+                        //     //softWrap: true,
+                        //     text: TextSpan(children: [
+                        //       WidgetSpan(
+                        //           child: SizedBox(
+                        //         width: 0,
+                        //       )),
+                        //       TextSpan(
+                        //           text: 'total Buy:'.tr,
+                        //           style: GoogleFonts.almarai(
+                        //             height: 1.8,
+                        //             textStyle: const TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
+                        //           )),
+                        //       TextSpan(
+                        //           text: ' ${formatNumberAfterComma2(invCtr.addingCardInvProd.priceBuy!)} ',
+                        //           style: GoogleFonts.almarai(
+                        //             height: 1.8,
+                        //             textStyle: const TextStyle(color: normalTextCol, fontSize: 13, fontWeight: FontWeight.w500),
+                        //           )),
+                        //       TextSpan(
+                        //           text: 'x'.tr,
+                        //           style: GoogleFonts.almarai(
+                        //             height: 1.8,
+                        //             textStyle: const TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
+                        //           )),
+                        //       TextSpan(
+                        //           text: ' (${invCtr.addingCardInvProd.qty!})  ',
+                        //           style: GoogleFonts.almarai(
+                        //             height: 1.8,
+                        //             textStyle: const TextStyle(color: normalTextCol, fontSize: 13, fontWeight: FontWeight.w500),
+                        //           )),
+                        //       TextSpan(
+                        //           text: '='.tr,
+                        //           style: GoogleFonts.almarai(
+                        //             height: 1.8,
+                        //             textStyle: const TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
+                        //           )),
+                        //       TextSpan(
+                        //           text: ' ${formatNumberAfterComma2(invCtr.addingCardInvProd.totalBuy!)} ',
+                        //           style: GoogleFonts.almarai(
+                        //             height: 1.8,
+                        //             textStyle: const TextStyle(color: invBuyCol, fontSize: 13, fontWeight: FontWeight.w500),
+                        //           )),
+                        //
+                        //       ///currency
+                        //       TextSpan(
+                        //           text: '  $currency',
+                        //           style: GoogleFonts.almarai(
+                        //             height: 1.8,
+                        //             textStyle: const TextStyle(color: transparentTextCol, fontSize: 10, fontWeight: FontWeight.w500),
+                        //           )),
+                        //     ]),
+                        //   ),
+                        // ),
+                        //
+                        // ///income calc
+                        // if (!isBuy)
+                        //   Padding(
+                        //     padding: const EdgeInsets.only(bottom: 0.0),
+                        //     child: RichText(
+                        //       locale: Locale(currLang!),
+                        //       textAlign: TextAlign.start,
+                        //       //softWrap: true,
+                        //       text: TextSpan(children: [
+                        //         WidgetSpan(
+                        //             child: SizedBox(
+                        //           width: 0,
+                        //         )),
+                        //         TextSpan(
+                        //             text: 'income:'.tr,
+                        //             style: GoogleFonts.almarai(
+                        //               height: 1.8,
+                        //               textStyle: TextStyle(color: normalTextCol, fontSize: 13, fontWeight: FontWeight.w500),
+                        //             )),
+                        //         TextSpan(
+                        //             text: ' ${formatNumberAfterComma2(invCtr.addingCardInvProd.income!)}',
+                        //             style: GoogleFonts.almarai(
+                        //               height: 1.8,
+                        //               textStyle: TextStyle(color: incomeCol, fontSize: 13, fontWeight: FontWeight.w500),
+                        //             )),
+                        //         TextSpan(
+                        //             text: '  $currency',
+                        //             style: GoogleFonts.almarai(
+                        //               height: 1.8,
+                        //               textStyle:
+                        //                   const TextStyle(color: transparentTextCol, fontSize: 10, fontWeight: FontWeight.w500),
+                        //             )),
+                        //       ]),
+                        //     ),
+                        //   ),
+                        // SizedBox(height: 5),
                       ],
                     ),
                   ),
@@ -1753,28 +1361,7 @@ Widget addingCard({bool canRemove = false}) {
           ),
 
           // add prod to "invProdsAdded" list and conv it to "invProdMap" map
-          ///add Btn
-          Positioned(
-            bottom: cardHei / 10,
-            right: (currLang == 'ar') ? null : 25, //english
-            left: (currLang == 'ar') ? 25 : null, //arabic
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: Colors.greenAccent.withOpacity(0.6),
-                  radius: 18,
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Icon(Icons.arrow_forward, size: 19),
-                    color: Colors.white,
-                    onPressed: () {
-                      invCtr.addInvProdToList();
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+
         ],
       ),
     ),
@@ -1807,9 +1394,9 @@ Widget addedCard({required InvProd prodAdded, required int index, bool canRemove
           children: [
             Card(
               color: cardColor,
-              elevation: 50,
+              elevation: 6,
               shape: RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.white38, width: 2), borderRadius: BorderRadius.circular(20)),
+                  side: BorderSide(color: productBorderCol, width: 2), borderRadius: BorderRadius.circular(20)),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
                 child: Column(
@@ -1819,12 +1406,7 @@ Widget addedCard({required InvProd prodAdded, required int index, bool canRemove
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Image.asset(
-                        //   'assets/images/user.png',
-                        //   width: 72,
-                        //   color: Colors.blueGrey,
-                        // ),
-                        SizedBox(width: 30),
+                     SizedBox(width: 30),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1832,7 +1414,7 @@ Widget addedCard({required InvProd prodAdded, required int index, bool canRemove
                             ///name
                             Text(
                               '${prodAdded.name}  (${prodAdded.qty})',
-                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: normalTextCol, fontSize: 18, fontWeight: FontWeight.bold),
                             ),
 
                             SizedBox(height: 5),
@@ -1855,35 +1437,35 @@ Widget addedCard({required InvProd prodAdded, required int index, bool canRemove
                                         style: GoogleFonts.almarai(
                                           height: 1.8,
                                           textStyle:
-                                              const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500),
+                                              const TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
                                         )),
                                     TextSpan(
                                         text: ' ${formatNumberAfterComma2(prodAdded.priceSell!)} ',
                                         style: GoogleFonts.almarai(
                                           height: 1.8,
                                           textStyle:
-                                              const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                                              const TextStyle(color: normalTextCol, fontSize: 13, fontWeight: FontWeight.w500),
                                         )),
                                     TextSpan(
                                         text: 'x'.tr,
                                         style: GoogleFonts.almarai(
                                           height: 1.8,
                                           textStyle:
-                                              const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500),
+                                              const TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
                                         )),
                                     TextSpan(
                                         text: ' (${prodAdded.qty!})  ',
                                         style: GoogleFonts.almarai(
                                           height: 1.8,
                                           textStyle:
-                                              const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                                              const TextStyle(color: normalTextCol, fontSize: 13, fontWeight: FontWeight.w500),
                                         )),
                                     TextSpan(
                                         text: '='.tr,
                                         style: GoogleFonts.almarai(
                                           height: 1.8,
                                           textStyle:
-                                              const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500),
+                                              const TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
                                         )),
                                     TextSpan(
                                         text: ' ${formatNumberAfterComma2(prodAdded.totalSell!)} ',
@@ -1898,7 +1480,7 @@ Widget addedCard({required InvProd prodAdded, required int index, bool canRemove
                                         style: GoogleFonts.almarai(
                                           height: 1.8,
                                           textStyle:
-                                              const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w500),
+                                              const TextStyle(color: transparentTextCol, fontSize: 10, fontWeight: FontWeight.w500),
                                         )),
                                   ]),
                                 ),
@@ -1921,35 +1503,35 @@ Widget addedCard({required InvProd prodAdded, required int index, bool canRemove
                                       style: GoogleFonts.almarai(
                                         height: 1.8,
                                         textStyle:
-                                            const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500),
+                                            const TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
                                       )),
                                   TextSpan(
                                       text: ' ${formatNumberAfterComma2(prodAdded.priceBuy!)} ',
                                       style: GoogleFonts.almarai(
                                         height: 1.8,
                                         textStyle:
-                                            const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                                            const TextStyle(color: normalTextCol, fontSize: 13, fontWeight: FontWeight.w500),
                                       )),
                                   TextSpan(
                                       text: 'x'.tr,
                                       style: GoogleFonts.almarai(
                                         height: 1.8,
                                         textStyle:
-                                            const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500),
+                                            const TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
                                       )),
                                   TextSpan(
                                       text: ' (${prodAdded.qty!})  ',
                                       style: GoogleFonts.almarai(
                                         height: 1.8,
                                         textStyle:
-                                            const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                                            const TextStyle(color: normalTextCol, fontSize: 13, fontWeight: FontWeight.w500),
                                       )),
                                   TextSpan(
                                       text: '='.tr,
                                       style: GoogleFonts.almarai(
                                         height: 1.8,
                                         textStyle:
-                                            const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500),
+                                            const TextStyle(color: transparentTextCol, fontSize: 13, fontWeight: FontWeight.w500),
                                       )),
                                   TextSpan(
                                       text: ' ${formatNumberAfterComma2(prodAdded.totalBuy!)} ',
@@ -1964,7 +1546,7 @@ Widget addedCard({required InvProd prodAdded, required int index, bool canRemove
                                       style: GoogleFonts.almarai(
                                         height: 1.8,
                                         textStyle:
-                                            const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w500),
+                                            const TextStyle(color: transparentTextCol, fontSize: 10, fontWeight: FontWeight.w500),
                                       )),
                                 ]),
                               ),
@@ -1987,7 +1569,7 @@ Widget addedCard({required InvProd prodAdded, required int index, bool canRemove
                                         text: 'income:'.tr,
                                         style: GoogleFonts.almarai(
                                           height: 1.8,
-                                          textStyle: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                                          textStyle: TextStyle(color: normalTextCol, fontSize: 13, fontWeight: FontWeight.w500),
                                         )),
                                     TextSpan(
                                         text: ' ${formatNumberAfterComma2(prodAdded.income!)} ',
@@ -2000,7 +1582,7 @@ Widget addedCard({required InvProd prodAdded, required int index, bool canRemove
                                         style: GoogleFonts.almarai(
                                           height: 1.8,
                                           textStyle:
-                                              const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w500),
+                                              const TextStyle(color: transparentTextCol, fontSize: 10, fontWeight: FontWeight.w500),
                                         )),
                                   ]),
                                 ),
@@ -2112,6 +1694,7 @@ List<TextInputFormatter>? inputFormatters,
         enabled: enabled,
         style: TextStyle(color: dialogFieldWriteCol, fontSize: 14.5),
         validator: validator,
+
         decoration: InputDecoration(
           //enabled: false,
 
@@ -2291,7 +1874,7 @@ Widget indexSquare(String time, String index, verified) {
             style: TextStyle(
               fontSize: 13,
               height: 0.5,
-              color: Colors.white,
+              color: transparentTextCol,
             ),
           ),
           Text(
@@ -2301,7 +1884,7 @@ Widget indexSquare(String time, String index, verified) {
               fontSize: 26,
               height: 1.3,
               fontWeight: FontWeight.bold,
-              color: verified ? Colors.greenAccent : Color(0xFFFFF66B).withOpacity(.8),
+              color: verified ? Colors.greenAccent : Colors.orange,
             ),
           ),
           Text(
@@ -2310,7 +1893,7 @@ Widget indexSquare(String time, String index, verified) {
             style: TextStyle(
               fontSize: 13,
               height: 1,
-              color: Colors.white,
+              color: transparentTextCol,
             ),
           ),
         ],

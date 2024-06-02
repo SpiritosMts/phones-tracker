@@ -43,52 +43,27 @@ class LayoutCtr extends GetxController {
     if(ldng!=null) leading=ldng;
     update();
   }
-
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  void openDrawer() {
+    scaffoldKey.currentState?.openDrawer();
+  }
   onScreenSelected(int index){
     switch (index) {
       case 0:
-        updateAppbar(title:'Invoices'.tr,
-    ldng: Container(),
+        updateAppbar(title:'Stats'.tr,
+    ldng:
+    IconButton(
+      onPressed: () {
+       openDrawer(); // Open the drawer when button is pressed
+      },
+      icon: Icon(Icons.menu,color: appBarButtonsCol,),
+
+    ),
 
             btns: [
-          //sell
-          GestureDetector(
-            onTap: () {
-              print('## add NEW sell invoice');
-              if (invCtr.notCheckedBuyInvoices.length != 0) {
-                showSnack('You have to check all buy invoices before adding new sell invoice'.tr,
-                    color: snackBarError);
-                return;
-              }
-              if (prdCtr.productsList.isEmpty) {
-                showSnack('You have to register at least one product to add sell invoice'.tr,
-                    color: snackBarError);
-                return;
-              }
 
-              invCtr.invType = 'Multiple';
-              Get.to(() => AddEditInvoice(), arguments: {
-                'isAdd': true,
-                'isVerified': false,
-                'isBuy': false,
-              });
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 11.0),
-              child: Center(
-                child: Text(
-                  'Sell'.tr,
-                  style: TextStyle(
-                    fontSize: 15.0,
-                    color: appBarButtonsCol,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
           //buy
-          GestureDetector(
+         if(false) GestureDetector(
             onTap: () {
               print('## add NEW buy invoice');
               if (prdCtr.productsList.isEmpty) {
@@ -121,97 +96,29 @@ class LayoutCtr extends GetxController {
 
         break;
       case 1:
-        updateAppbar(title:'Inventory'.tr,
-            ldng:  GetBuilder<ProductsCtr>(
-          //id:'appBar',
-            builder: (_) {
-              //&& chCtr.selectedServer != ''
-              return SizedBox(
-               // width: 300,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 0, top: 0.0,left: 0),
-                  child: DropdownButton<String>(
-                    icon: Icon(Icons.arrow_drop_down, color: primaryColor.withOpacity(0.7),size: 20),
-                    padding: const EdgeInsets.only(right: 0, top: 10,left: 5),
-                    dropdownColor:dropDownCol ,
-                    //iconSize: 1,
-                    value: prdCtr.selectedManufac,
-                    underline: Container(),
-
-
-                    isDense: false,
-                    isExpanded: true,
-                    items: phoneManufacturers.map((String man) {
-                      return DropdownMenuItem<String>(
-
-                          value: man,
-                          child: Text(
-                            man,
-                            style: TextStyle(color: primaryColor.withOpacity(0.7),fontSize: 11),
-                          )
-                      );
-                    }).toList(),
-                    onChanged: (man) {
-                      if(man != prdCtr.selectedManufac){
-                        prdCtr.selectedManufac = man!;
-                        prdCtr.runProdFilter(manu:man!);
-                        showSnack('$man Devices ...');
-
-                        Future.delayed(const Duration(milliseconds: 200), () {
-                          prdCtr.update();
-                        });
-                      }
-
-
-                    },
-                  ),
-                ),
-              );
-            }),
+        updateAppbar(title:'Search'.tr,
+            //ldng:Container(),
             btns: [
 
-              IconButton(
-                onPressed: () {
-                  Get.to(()=>PhonePropertiesForm(isAdd: true,));
-
-                },
-                icon: Icon(Icons.add,color: appBarButtonsCol,),
-
-              ),
-          IconButton(
-            onPressed: () {
-             prdCtr.addProductsToFirestore();
-
-            },
-            icon: Icon(Icons.search,color: appBarButtonsCol,),
-
-          ),
 
 
         ]);
         break;
       case 2:
         updateAppbar(title:'Notes'.tr,btns: [
-          IconButton(
-            onPressed: () {
-              showAnimDialog(noteCtr.showNoteDialog());
 
-            },
-            icon: Icon(Icons.add,color: appBarButtonsCol,),
-
-          ),
-        ],ldng: Container());
+        ]);
 
         break;
 
       case 3:
-        updateAppbar(title:'Settings'.tr,btns: [],ldng: Container());
+        updateAppbar(title:'Profile'.tr,btns: [],);
 
         break;
 
 
       default:
-        updateAppbar(title:'Invoices'.tr,btns: [],ldng: Container());
+        updateAppbar(title:'Stats'.tr,btns: [],ldng: Container());
 
 
     }

@@ -57,7 +57,7 @@ class NotesCtr extends GetxController {
 
         var value = await  deleteDoc(
             docID: note.id!,
-            coll: productsColl
+            coll: notesColl
         );
 
 
@@ -73,8 +73,6 @@ class NotesCtr extends GetxController {
 
     }
   }
-
-
 
   addNote() async {
 
@@ -122,7 +120,6 @@ class NotesCtr extends GetxController {
 
   }
 
-
   showNoteDialog() {
 
     print('## show note dialog');
@@ -158,7 +155,7 @@ class NotesCtr extends GetxController {
 
                 customTextField(
                   controller: clientNameTec,
-                  labelText: 'Client Name'.tr,
+                  labelText: 'Note Topic'.tr,
                   icon: Icons.person,
                 ),
                 SizedBox(height: 18,),
